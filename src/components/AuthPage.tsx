@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,7 +20,7 @@ export const AuthPage = ({ onAuthSuccess, onBackToHome }: AuthPageProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const { signIn, signUp, resetPassword } = useAuth();
-  const { role, isAdmin } = useUserRole();
+  const { userRole, isAdmin } = useUserRole();
 
   const [loginData, setLoginData] = useState({
     email: "",
@@ -211,9 +210,9 @@ export const AuthPage = ({ onAuthSuccess, onBackToHome }: AuthPageProps) => {
               </Badge>
             )}
           </div>
-          {role && (
+          {userRole && (
             <p className="text-sm text-gray-600">
-              Current role: <span className="font-medium capitalize">{role}</span>
+              Current role: <span className="font-medium capitalize">{userRole}</span>
             </p>
           )}
         </CardHeader>

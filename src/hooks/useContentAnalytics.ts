@@ -31,6 +31,11 @@ interface ContentInsight {
   actionable?: string;
 }
 
+interface EngagementTrendData {
+  date: string;
+  engagement: number;
+}
+
 export const useContentAnalytics = () => {
   const [allMetrics, setAllMetrics] = useState<ContentMetrics[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -68,6 +73,40 @@ export const useContentAnalytics = () => {
       )
     );
   }, []);
+
+  const getEngagementTrend = useCallback((days: number = 30): EngagementTrendData[] => {
+    const now = new Date();
+    const startDate = new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
+    
+    // Filter metrics within the date range
+    const recentMetrics = allMetrics.filter(metric => {
+      const metricDate = new Date(metric.createdAt);
+      return metricDate >= startDate && metricDate <= now;
+    });
+
+    if (recentMetrics.length === 0) {
+      return [];
+    }
+
+    // Group by date and calculate average engagement
+    const dateGroups: Record<string, ContentMetrics[]> = {};
+    
+    recentMetrics.forEach(metric => {
+      const date = new Date(metric.createdAt).toISOString().split('T')[0];
+      if (!dateGroups[date]) {
+        dateGroups[date] = [];
+      }
+      dateGroups[date].push(metric);
+    });
+
+    // Calculate trend data
+    return Object.entries(dateGroups)
+      .map(([date, metrics]) => ({
+        date,
+        engagement: metrics.reduce((sum, m) => sum + m.engagement, 0) / metrics.length
+      }))
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  }, [allMetrics]);
 
   const generateInsights = useCallback((metrics: ContentMetrics[]) => {
     if (metrics.length === 0) return;
@@ -183,6 +222,7 @@ export const useContentAnalytics = () => {
     trackContent,
     updateMetrics,
     refreshAnalytics,
-    getTopPerformingContent
+    getTopPerformingContent,
+    getEngagementTrend
   };
 };

@@ -20,7 +20,7 @@ export const MobileOptimizedHero = ({
   user,
   isMobile
 }: MobileOptimizedHeroProps) => {
-  const { restartOnboarding } = useOnboarding();
+  const { resetOnboarding } = useOnboarding();
 
   return (
     <div className="relative bg-gradient-to-b from-purple-50 to-white pt-6 pb-16 px-4">
@@ -75,7 +75,7 @@ export const MobileOptimizedHero = ({
             <Button
               variant="ghost"
               size="sm"
-              onClick={restartOnboarding}
+              onClick={resetOnboarding}
               className="mt-4 text-sm"
             >
               Restart guided tour
