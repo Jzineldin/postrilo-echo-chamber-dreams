@@ -1,0 +1,66 @@
+
+/* Mobile Component Styles */
+@layer base {
+  @media (max-width: 768px) {
+    /* Enhanced button styling with better accessibility */
+    button {
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: 0.025em;
+      line-height: 1.2;
+    }
+
+    /* CTA button specific improvements */
+    .touch-friendly {
+      min-height: 56px;
+      min-width: 56px;
+      padding: 16px 24px;
+      font-size: 1.125rem;
+    }
+
+    /* Enhanced form field styling */
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    textarea,
+    select {
+      border-radius: 8px;
+      border: 2px solid rgb(229 231 235);
+      background-color: white;
+      transition: all 0.2s;
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+      outline: none;
+      border-color: rgb(147 51 234);
+      box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.1);
+    }
+  }
+
+  /* Enhanced safe area support for notched devices */
+  @supports (padding: max(0px)) {
+    .safe-area-padding {
+      padding-left: max(1rem, env(safe-area-inset-left));
+      padding-right: max(1rem, env(safe-area-inset-right));
+      padding-top: max(1rem, env(safe-area-inset-top));
+      padding-bottom: max(1rem, env(safe-area-inset-bottom));
+    }
+  }
+
+  /* Enhanced gradient background refinements */
+  .gradient-bg {
+    background: linear-gradient(135deg, 
+      rgba(139, 92, 246, 0.03) 0%, 
+      rgba(236, 72, 153, 0.03) 100%);
+  }
+
+  .gradient-section {
+    background: linear-gradient(135deg, 
+      rgba(139, 92, 246, 0.08) 0%, 
+      rgba(236, 72, 153, 0.08) 50%,
+      rgba(59, 130, 246, 0.05) 100%);
+  }
+}

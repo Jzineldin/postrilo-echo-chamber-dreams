@@ -1,0 +1,80 @@
+
+/* Modern Typography styles */
+@layer base {
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    color: #1f2937;
+    background-color: #ffffff;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    line-height: 1.6;
+    font-weight: 400;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display;
+    font-family: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+  }
+
+  h1 {
+    font-size: clamp(2.25rem, 5vw, 4.5rem);
+    font-weight: 800;
+    letter-spacing: -0.05em;
+  }
+
+  h2 {
+    font-size: clamp(1.75rem, 4vw, 2.75rem);
+    font-weight: 700;
+    letter-spacing: -0.04em;
+  }
+
+  h3 {
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.03em;
+  }
+
+  button {
+    @apply font-body;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  input, textarea, select {
+    @apply font-body;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-weight: 400;
+  }
+
+  .text-display {
+    font-family: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+  }
+
+  p {
+    line-height: 1.7;
+    font-weight: 400;
+    color: #4b5563;
+  }
+
+  .lead {
+    font-size: 1.25rem;
+    line-height: 1.6;
+    font-weight: 500;
+    color: #6b7280;
+  }
+
+  .text-heading {
+    font-family: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+  }
+
+  .text-body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+}

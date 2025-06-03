@@ -1,0 +1,219 @@
+
+/* Performance Optimizations */
+@layer utilities {
+  /* GPU acceleration for smooth animations */
+  .gpu-accelerated {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+  }
+
+  /* Optimized animations */
+  .smooth-transition {
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Prevent layout shifts */
+  .aspect-ratio-16-9 {
+    aspect-ratio: 16 / 9;
+  }
+
+  .aspect-ratio-4-3 {
+    aspect-ratio: 4 / 3;
+  }
+
+  /* Optimize images */
+  .optimized-image {
+    object-fit: cover;
+    will-change: transform;
+    backface-visibility: hidden;
+  }
+
+  /* Reduce repaints */
+  .contain-layout {
+    contain: layout;
+  }
+
+  .contain-paint {
+    contain: paint;
+  }
+
+  .contain-strict {
+    contain: strict;
+  }
+
+  /* Critical rendering optimizations */
+  .critical-section {
+    content-visibility: auto;
+    contain-intrinsic-size: 1px 400px;
+  }
+
+  /* Scroll optimizations */
+  .smooth-scroll {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Font loading optimizations */
+  .font-display-swap {
+    font-display: swap;
+  }
+
+  /* Loading state improvements */
+  .min-loading-time {
+    min-height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Better skeleton loading */
+  .enhanced-skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s ease-in-out infinite;
+  }
+
+  /* Intersection observer optimizations */
+  .lazy-load-trigger {
+    height: 1px;
+    margin-bottom: -1px;
+  }
+
+  /* Memory leak prevention */
+  .cleanup-animations {
+    animation-fill-mode: forwards;
+  }
+
+  /* Viewport-based loading optimization */
+  .viewport-optimized {
+    content-visibility: auto;
+    contain-intrinsic-size: 1px 500px;
+  }
+
+  /* Improved image loading states */
+  .image-loading {
+    background: linear-gradient(90deg, #f7f7f7 25%, #eee 50%, #f7f7f7 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s ease-in-out infinite;
+  }
+
+  .image-loaded {
+    animation: fadeIn 0.3s ease-in-out;
+  }
+
+  /* Better performance for large lists */
+  .virtual-scroll {
+    overflow: auto;
+    height: 100%;
+    contain: strict;
+  }
+
+  /* Optimize transforms for better performance */
+  .transform-optimized {
+    transform: translateZ(0);
+    will-change: transform;
+  }
+
+  /* Reduce motion for accessibility and performance */
+  @media (prefers-reduced-motion: reduce) {
+    .respect-motion-preference {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+
+    .enhanced-skeleton {
+      animation: none;
+      background: #f0f0f0;
+    }
+  }
+
+  /* Progressive enhancement */
+  .js-enabled {
+    /* Styles for when JavaScript is available */
+  }
+
+  .no-js {
+    /* Fallback styles for when JavaScript is disabled */
+  }
+
+  /* Critical resource loading indicators */
+  .critical-loading {
+    background: linear-gradient(90deg, 
+      rgba(139, 92, 246, 0.1) 0%, 
+      rgba(236, 72, 153, 0.1) 50%,
+      rgba(139, 92, 246, 0.1) 100%);
+    background-size: 200% 100%;
+    animation: shimmer 2s ease-in-out infinite;
+  }
+
+  /* Memory-efficient gradients */
+  .efficient-gradient {
+    background: linear-gradient(135deg, 
+      rgba(139, 92, 246, 0.05) 0%, 
+      rgba(236, 72, 153, 0.05) 100%);
+    will-change: scroll-position;
+  }
+}
+
+/* Enhanced loading states */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes pulse-soft {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.pulse-soft {
+  animation: pulse-soft 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Critical performance styles that should be inlined */
+.critical-above-fold {
+  font-display: swap;
+  text-rendering: optimizeSpeed;
+  contain: layout style paint;
+}
+
+/* Improved intersection observer performance */
+.intersection-root {
+  contain: layout style paint;
+  overflow: hidden;
+}
+
+/* Better memory management for large pages */
+.memory-optimized {
+  contain: strict;
+  content-visibility: auto;
+}
+
+/* Enhanced touch targets for mobile performance */
+@media (max-width: 768px) {
+  .touch-optimized {
+    min-height: 44px;
+    min-width: 44px;
+    touch-action: manipulation;
+  }
+}

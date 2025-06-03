@@ -1,0 +1,190 @@
+
+/* Pricing Page Mobile Optimizations */
+@layer utilities {
+  /* Enhanced touch interactions for pricing elements */
+  .pricing-card-touch {
+    @apply touch-friendly;
+    -webkit-tap-highlight-color: rgba(147, 51, 234, 0.1);
+    cursor: pointer;
+  }
+
+  .pricing-card-touch:active {
+    transform: scale(0.98);
+    transition: transform 0.1s ease-out;
+  }
+
+  /* Improved button states for pricing CTAs */
+  .pricing-cta-button {
+    @apply touch-friendly-large;
+    min-height: 56px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 12px;
+    transition: all 0.2s ease-out;
+  }
+
+  .pricing-cta-button:active {
+    transform: scale(0.96);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  /* Enhanced focus states for accessibility */
+  .pricing-focus:focus-visible {
+    outline: 3px solid #8B5CF6;
+    outline-offset: 2px;
+    border-radius: 8px;
+    box-shadow: 0 0 0 6px rgba(139, 92, 246, 0.1);
+  }
+
+  /* Mobile-optimized grid layouts with fixed overflow */
+  .pricing-grid-mobile {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  @media (min-width: 640px) {
+    .pricing-grid-mobile {
+      gap: 1.5rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .pricing-grid-mobile {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 2rem;
+    }
+  }
+
+  /* Enhanced spacing for pricing sections */
+  .pricing-section-spacing {
+    margin-bottom: 2rem;
+  }
+
+  @media (min-width: 640px) {
+    .pricing-section-spacing {
+      margin-bottom: 3rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .pricing-section-spacing {
+      margin-bottom: 4rem;
+    }
+  }
+
+  /* Performance optimizations */
+  .pricing-scroll-optimize {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: none;
+    scroll-behavior: smooth;
+  }
+
+  /* High contrast mode support */
+  @media (prefers-contrast: high) {
+    .pricing-card {
+      border: 2px solid #000;
+      background: #fff;
+    }
+
+    .pricing-button {
+      border: 2px solid #000;
+      background: #000;
+      color: #fff;
+    }
+  }
+
+  /* Reduced motion support */
+  @media (prefers-reduced-motion: reduce) {
+    .pricing-card,
+    .pricing-button,
+    .pricing-cta-button {
+      transition: none;
+      animation: none;
+    }
+  }
+
+  /* Safe area support for modern devices */
+  .pricing-safe-area {
+    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
+    padding-top: max(0.5rem, env(safe-area-inset-top));
+    padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+  }
+
+  /* Fix for pricing card containers */
+  .pricing-card-container {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+  }
+}
+
+/* Mobile viewport optimizations */
+@media (max-width: 768px) {
+  /* Prevent horizontal scroll */
+  .pricing-container {
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+
+  /* Optimize font sizes for mobile readability */
+  .pricing-text-sm {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .pricing-text-base {
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  .pricing-text-lg {
+    font-size: 18px;
+    line-height: 1.5;
+  }
+
+  /* Enhanced button sizing for touch */
+  .pricing-mobile-button {
+    min-height: 48px;
+    min-width: 48px;
+    padding: 12px 20px;
+    font-size: 16px;
+  }
+
+  /* Ensure grid items don't overflow */
+  .grid > * {
+    min-width: 0;
+    max-width: 100%;
+  }
+}
+
+/* Extra small mobile devices */
+@media (max-width: 480px) {
+  .pricing-container {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  .pricing-grid-mobile {
+    gap: 0.75rem;
+  }
+
+  .pricing-section-spacing {
+    margin-bottom: 1.5rem;
+  }
+}
+
+/* Prevent any grid overflow issues */
+.grid {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.grid > * {
+  min-width: 0;
+  max-width: 100%;
+}

@@ -1,0 +1,108 @@
+
+/* Mobile Layout and Spacing - Ultra-compact optimized for shorter pages */
+@layer base {
+  @media (max-width: 768px) {
+    /* Container improvements with minimal padding */
+    .container {
+      padding-left: 0.5rem;
+      padding-right: 0.5rem;
+    }
+
+    /* Drastically reduced spacing for ultra-compact mobile experience */
+    .space-y-4 > * + * {
+      margin-top: 0.5rem;
+    }
+
+    .space-y-6 > * + * {
+      margin-top: 0.75rem;
+    }
+
+    .space-y-8 > * + * {
+      margin-top: 1rem;
+    }
+
+    .space-y-12 > * + * {
+      margin-top: 1.25rem;
+    }
+
+    .space-y-16 > * + * {
+      margin-top: 1.5rem;
+    }
+
+    /* Ultra-tight grid gaps */
+    .grid {
+      gap: 0.75rem;
+    }
+
+    /* Enhanced card stacking on mobile */
+    .grid-cols-1.md\\:grid-cols-2.lg\\:grid-cols-3,
+    .grid-cols-1.sm\\:grid-cols-2.lg\\:grid-cols-3 {
+      grid-template-columns: 1fr;
+    }
+
+    .grid-cols-1.md\\:grid-cols-2,
+    .grid-cols-1.sm\\:grid-cols-2 {
+      grid-template-columns: 1fr;
+    }
+
+    /* Compact card layouts */
+    .mobile-card-grid {
+      grid-template-columns: 1fr;
+      gap: 0.5rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .space-y-8 > * + * {
+      margin-top: 0.75rem;
+    }
+
+    .space-y-12 > * + * {
+      margin-top: 1rem;
+    }
+
+    .space-y-16 > * + * {
+      margin-top: 1.25rem;
+    }
+
+    /* Minimal spacing for very small screens */
+    .container,
+    .px-4 {
+      padding-left: 0.25rem;
+      padding-right: 0.25rem;
+    }
+
+    /* Ultra-compact grid gaps */
+    .grid {
+      gap: 0.5rem;
+    }
+
+    /* Micro-spacing for tiny screens */
+    .mobile-micro-spacing > * + * {
+      margin-top: 0.25rem;
+    }
+  }
+
+  /* Compact section spacing overrides */
+  @media (max-width: 768px) {
+    .py-6 {
+      padding-top: 1rem;
+      padding-bottom: 1rem;
+    }
+
+    .py-8 {
+      padding-top: 1.25rem;
+      padding-bottom: 1.25rem;
+    }
+
+    .py-12 {
+      padding-top: 1.5rem;
+      padding-bottom: 1.5rem;
+    }
+
+    .py-16 {
+      padding-top: 2rem;
+      padding-bottom: 2rem;
+    }
+  }
+}

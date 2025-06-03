@@ -1,0 +1,111 @@
+
+/* Enhanced Mobile Touch Optimizations */
+
+@layer utilities {
+  /* Mobile scroll behavior */
+  .mobile-no-scroll {
+    @apply overflow-x-hidden;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+
+  /* Enhanced button styling for mobile */
+  .mobile-button-enhanced {
+    @apply min-h-[48px] min-w-[48px] px-5 py-3.5;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Enhanced focus states for mobile */
+  .mobile-focus-enhanced {
+    @apply focus:ring-2 focus:ring-purple-500 focus:ring-offset-2;
+    @apply focus:outline-none;
+  }
+
+  /* Enhanced card styling for mobile */
+  .mobile-card-enhanced {
+    @apply rounded-lg shadow-sm border border-gray-200;
+    @apply hover:shadow-md transition-shadow duration-200;
+  }
+
+  /* Touch-friendly utility classes */
+  .touch-friendly {
+    @apply min-h-[44px] min-w-[44px];
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .touch-area-large {
+    @apply min-h-[56px] min-w-[56px];
+  }
+
+  .no-tap-highlight {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .momentum-scroll {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+}
+
+@layer components {
+  /* Mobile optimized input fields */
+  .mobile-input {
+    @apply text-base px-4 py-3 rounded-lg border border-gray-300;
+    @apply focus:border-purple-500 focus:ring-1 focus:ring-purple-500;
+    @apply transition-colors duration-200;
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+
+  /* Mobile optimized buttons */
+  .mobile-btn {
+    @apply px-6 py-3 min-h-[48px] rounded-lg font-medium;
+    @apply transition-all duration-200 touch-friendly;
+  }
+
+  .mobile-btn-primary {
+    @apply mobile-btn bg-purple-600 text-white;
+    @apply hover:bg-purple-700 active:bg-purple-800;
+  }
+
+  .mobile-btn-secondary {
+    @apply mobile-btn bg-gray-100 text-gray-900;
+    @apply hover:bg-gray-200 active:bg-gray-300;
+  }
+}
+
+/* Responsive typography improvements */
+@media (max-width: 768px) {
+  .mobile-text-scale {
+    font-size: clamp(0.875rem, 4vw, 1rem);
+    line-height: 1.6;
+  }
+
+  .mobile-heading-scale {
+    font-size: clamp(1.5rem, 8vw, 2.5rem);
+    line-height: 1.2;
+  }
+}
+
+/* Enhanced animation performance on mobile */
+@media (prefers-reduced-motion: no-preference) {
+  .mobile-animate {
+    animation-duration: 0.2s;
+    animation-timing-function: ease-out;
+  }
+}
+
+/* Prevent text selection on interactive elements */
+.no-select {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Improve scroll performance */
+.scroll-smooth {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}

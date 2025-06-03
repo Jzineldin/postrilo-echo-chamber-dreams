@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -18,6 +19,12 @@ export default {
 			}
 		},
 		extend: {
+			fontFamily: {
+				sans: ['Inter', 'system-ui', 'sans-serif'],
+				'heading': ['Poppins', 'system-ui', 'sans-serif'],
+				'display': ['Space Grotesk', 'system-ui', 'sans-serif'],
+				'body': ['Inter', 'system-ui', 'sans-serif'],
+			},
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
@@ -61,6 +68,31 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				// Postrilo brand colors from the logo
+				'postrilo-purple': {
+					50: '#F3F0FF',
+					100: '#E9E2FF',
+					200: '#D6CCFF',
+					300: '#B8A5FF',
+					400: '#9575FF',
+					500: '#8B5CF6', // Main purple from logo
+					600: '#7C3AED',
+					700: '#6B21A8',
+					800: '#581C87',
+					900: '#4C1D95',
+				},
+				'postrilo-pink': {
+					50: '#FEF7F3',
+					100: '#FDF2F8',
+					200: '#FCE7F3',
+					300: '#F9A8D4',
+					400: '#F472B6', // Main pink from logo
+					500: '#EC4899',
+					600: '#DB2777',
+					700: '#BE185D',
+					800: '#9D174D',
+					900: '#831843',
 				}
 			},
 			borderRadius: {
