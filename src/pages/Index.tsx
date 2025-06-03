@@ -9,7 +9,7 @@ import { AppLoading } from "@/components/AppLoading";
 import { PricingPage } from "@/components/PricingPage";
 import { HelpSupportPage } from "@/components/HelpSupportPage";
 import { AnalyticsDashboard } from "@/components/analytics/AnalyticsDashboard";
-import { ContentGenerator } from "@/components/ContentGenerator";
+import ContentGenerator from "@/components/ContentGenerator";
 import { BrandVoiceManager } from "@/components/BrandVoiceManager";
 import { ContentScheduler } from "@/components/ContentScheduler";
 import { SettingsPanel } from "@/components/SettingsPanel";
@@ -68,10 +68,28 @@ const Index = () => {
     }
   };
 
+  const handleBackToHome = () => {
+    handleTabChange("home");
+  };
+
+  const handleSelectPlan = () => {
+    console.log("Plan selected - redirecting to signup/dashboard");
+    if (user) {
+      handleTabChange("dashboard");
+    } else {
+      handleAuth();
+    }
+  };
+
   // Render based on active tab
   switch (activeTab) {
     case "auth":
-      return <AuthPage onAuthSuccess={handleAuthSuccess} />;
+      return (
+        <AuthPage 
+          onAuthSuccess={handleAuthSuccess} 
+          onBackToHome={handleBackToHome}
+        />
+      );
     
     case "dashboard":
       if (!user) {
@@ -116,7 +134,7 @@ const Index = () => {
       return <SettingsPanel />;
     
     case "pricing":
-      return <PricingPage />;
+      return <PricingPage onSelectPlan={handleSelectPlan} />;
     
     case "help":
       return <HelpSupportPage />;
