@@ -1,9 +1,8 @@
 
-import React from "react";
-import { QuickActions } from "./QuickActions";
-import { UsageAnalytics } from "../usage/UsageAnalytics";
-import { ContentTip } from "./ContentTip";
-import { RecentContent } from "./RecentContent";
+import React from 'react';
+import { QuickActions } from './QuickActions';
+import { ContentTip } from './ContentTip';
+import { UsageAnalytics } from '../usage/UsageAnalytics';
 
 interface DashboardMainContentProps {
   user: any;
@@ -19,22 +18,22 @@ export const DashboardMainContent = ({
   onNavigateToTab
 }: DashboardMainContentProps) => {
   return (
-    <div className="grid lg:grid-cols-3 gap-6">
-      {/* Quick Actions */}
-      <div className="lg:col-span-2 space-y-6">
-        <QuickActions 
-          user={user} 
-          isMobile={isMobile} 
+    <div className={`grid gap-6 ${isMobile ? 'grid-cols-1' : 'lg:grid-cols-3'}`}>
+      {/* Main Content Area */}
+      <div className={isMobile ? 'space-y-6' : 'lg:col-span-2 space-y-6'}>
+        <QuickActions
+          user={user}
+          isMobile={isMobile}
           onCreateContent={onCreateContent}
           onNavigateToTab={onNavigateToTab}
         />
+        
         <UsageAnalytics />
       </div>
-
-      {/* Sidebar */}
+      
+      {/* Sidebar Content */}
       <div className="space-y-6">
         <ContentTip isMobile={isMobile} />
-        <RecentContent isMobile={isMobile} />
       </div>
     </div>
   );

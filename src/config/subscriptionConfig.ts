@@ -1,7 +1,7 @@
 
-import { SubscriptionFeatures, SubscriptionTier } from "@/types/subscriptionTypes";
+import { SubscriptionFeatures } from '@/types/subscriptionTypes';
 
-export const SUBSCRIPTION_FEATURES: Record<SubscriptionTier, SubscriptionFeatures> = {
+export const SUBSCRIPTION_FEATURES: Record<string, SubscriptionFeatures> = {
   free: {
     hasAdvancedScheduling: false,
     hasAnalytics: false,
@@ -16,38 +16,18 @@ export const SUBSCRIPTION_FEATURES: Record<SubscriptionTier, SubscriptionFeature
     hasHashtagResearch: false,
     hasContentCalendar: false,
     hasAdvancedBrandVoice: false,
-    maxContentPerMonth: 10,
+    maxContentPerMonth: 5,
     maxBrandVoices: 1,
     maxTeamMembers: 1,
-    platforms: ['twitter', 'facebook'],
-    templates: ['basic-post', 'quote-inspiration', 'brand-story']
+    platforms: ['instagram', 'twitter', 'facebook'],
+    templates: ['basic_post', 'announcement']
   },
   starter: {
     hasAdvancedScheduling: true,
-    hasAnalytics: false,
+    hasAnalytics: true,
     hasPrioritySupport: false,
     hasUnlimitedGeneration: false,
-    hasAdvancedAI: true,
-    hasBrandVoice: true,
-    hasTeamCollaboration: false,
-    hasCustomTemplates: false,
-    hasAPIAccess: false,
-    hasWhiteLabel: false,
-    hasHashtagResearch: true,
-    hasContentCalendar: true,
-    hasAdvancedBrandVoice: false,
-    maxContentPerMonth: 100,
-    maxBrandVoices: 3,
-    maxTeamMembers: 1,
-    platforms: ['twitter', 'facebook', 'instagram', 'linkedin', 'tiktok', 'youtube'],
-    templates: ['basic-post', 'quote-inspiration', 'brand-story', 'product-launch', 'tutorial-post', 'behind-the-scenes', 'community-post', 'educational-carousel']
-  },
-  creator: {
-    hasAdvancedScheduling: true,
-    hasAnalytics: false,
-    hasPrioritySupport: false,
-    hasUnlimitedGeneration: false,
-    hasAdvancedAI: true,
+    hasAdvancedAI: false,
     hasBrandVoice: true,
     hasTeamCollaboration: false,
     hasCustomTemplates: false,
@@ -59,8 +39,28 @@ export const SUBSCRIPTION_FEATURES: Record<SubscriptionTier, SubscriptionFeature
     maxContentPerMonth: 50,
     maxBrandVoices: 3,
     maxTeamMembers: 1,
-    platforms: ['twitter', 'facebook', 'instagram', 'linkedin', 'tiktok', 'youtube'],
-    templates: ['basic-post', 'quote-inspiration', 'brand-story', 'product-launch', 'tutorial-post', 'behind-the-scenes', 'community-post', 'educational-carousel']
+    platforms: ['instagram', 'twitter', 'facebook', 'linkedin'],
+    templates: ['basic_post', 'announcement', 'promotional', 'educational']
+  },
+  creator: {
+    hasAdvancedScheduling: true,
+    hasAnalytics: true,
+    hasPrioritySupport: true,
+    hasUnlimitedGeneration: false,
+    hasAdvancedAI: true,
+    hasBrandVoice: true,
+    hasTeamCollaboration: true,
+    hasCustomTemplates: true,
+    hasAPIAccess: false,
+    hasWhiteLabel: false,
+    hasHashtagResearch: true,
+    hasContentCalendar: true,
+    hasAdvancedBrandVoice: true,
+    maxContentPerMonth: 200,
+    maxBrandVoices: 10,
+    maxTeamMembers: 3,
+    platforms: ['instagram', 'twitter', 'facebook', 'linkedin', 'tiktok', 'youtube'],
+    templates: ['basic_post', 'announcement', 'promotional', 'educational', 'video_script', 'story']
   },
   premium: {
     hasAdvancedScheduling: true,
@@ -71,16 +71,16 @@ export const SUBSCRIPTION_FEATURES: Record<SubscriptionTier, SubscriptionFeature
     hasBrandVoice: true,
     hasTeamCollaboration: true,
     hasCustomTemplates: true,
-    hasAPIAccess: false,
+    hasAPIAccess: true,
     hasWhiteLabel: false,
     hasHashtagResearch: true,
     hasContentCalendar: true,
     hasAdvancedBrandVoice: true,
-    maxContentPerMonth: 500,
-    maxBrandVoices: 10,
-    maxTeamMembers: 5,
-    platforms: ['twitter', 'facebook', 'instagram', 'linkedin', 'tiktok', 'youtube', 'pinterest'],
-    templates: ['basic-post', 'quote-inspiration', 'brand-story', 'product-launch', 'tutorial-post', 'behind-the-scenes', 'community-post', 'educational-carousel', 'custom-template-1', 'custom-template-2']
+    maxContentPerMonth: 999999,
+    maxBrandVoices: 25,
+    maxTeamMembers: 10,
+    platforms: ['instagram', 'twitter', 'facebook', 'linkedin', 'tiktok', 'youtube', 'pinterest'],
+    templates: ['basic_post', 'announcement', 'promotional', 'educational', 'video_script', 'story', 'thread', 'carousel']
   },
   enterprise: {
     hasAdvancedScheduling: true,
@@ -96,11 +96,11 @@ export const SUBSCRIPTION_FEATURES: Record<SubscriptionTier, SubscriptionFeature
     hasHashtagResearch: true,
     hasContentCalendar: true,
     hasAdvancedBrandVoice: true,
-    maxContentPerMonth: Infinity,
-    maxBrandVoices: Infinity,
-    maxTeamMembers: Infinity,
-    platforms: ['twitter', 'facebook', 'instagram', 'linkedin', 'tiktok', 'youtube', 'pinterest', 'snapchat', 'reddit'],
-    templates: ['basic-post', 'quote-inspiration', 'brand-story', 'product-launch', 'tutorial-post', 'behind-the-scenes', 'community-post', 'educational-carousel', 'custom-template-1', 'custom-template-2', 'custom-template-3']
+    maxContentPerMonth: 999999,
+    maxBrandVoices: 999999,
+    maxTeamMembers: 999999,
+    platforms: ['instagram', 'twitter', 'facebook', 'linkedin', 'tiktok', 'youtube', 'pinterest', 'snapchat'],
+    templates: ['basic_post', 'announcement', 'promotional', 'educational', 'video_script', 'story', 'thread', 'carousel', 'custom']
   }
 };
 
@@ -118,9 +118,9 @@ export const BUSINESS_USER_FEATURES: SubscriptionFeatures = {
   hasHashtagResearch: true,
   hasContentCalendar: true,
   hasAdvancedBrandVoice: true,
-  maxContentPerMonth: Infinity,
-  maxBrandVoices: Infinity,
-  maxTeamMembers: Infinity,
-  platforms: ['twitter', 'facebook', 'instagram', 'linkedin', 'tiktok', 'youtube', 'pinterest', 'snapchat', 'reddit'],
-  templates: ['basic-post', 'quote-inspiration', 'brand-story', 'product-launch', 'tutorial-post', 'behind-the-scenes', 'community-post', 'educational-carousel', 'custom-template-1', 'custom-template-2', 'custom-template-3']
+  maxContentPerMonth: 999999,
+  maxBrandVoices: 999999,
+  maxTeamMembers: 999999,
+  platforms: ['instagram', 'twitter', 'facebook', 'linkedin', 'tiktok', 'youtube', 'pinterest', 'snapchat'],
+  templates: ['basic_post', 'announcement', 'promotional', 'educational', 'video_script', 'story', 'thread', 'carousel', 'custom']
 };

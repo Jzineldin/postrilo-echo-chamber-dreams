@@ -12,7 +12,10 @@ export const useOnboarding = () => {
     
     // Show onboarding tour if user hasn't completed it
     if (!hasCompleted) {
-      setShowOnboarding(true);
+      const timer = setTimeout(() => {
+        setShowOnboarding(true);
+      }, 2000);
+      return () => clearTimeout(timer);
     }
   }, []);
 
@@ -28,7 +31,7 @@ export const useOnboarding = () => {
     setShowOnboarding(false);
   };
 
-  const restartOnboarding = () => {
+  const resetOnboarding = () => {
     localStorage.removeItem('onboarding_completed');
     setHasCompletedOnboarding(false);
     setShowOnboarding(true);
@@ -39,6 +42,6 @@ export const useOnboarding = () => {
     showOnboarding,
     completeOnboarding,
     skipOnboarding,
-    restartOnboarding
+    resetOnboarding
   };
 };
