@@ -1,201 +1,180 @@
 
-import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { MessageSquare, Mail, Clock, Send } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import React, { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
+import { Mail, MessageCircle, Phone, Clock } from 'lucide-react';
 
 export const ContactSupport = () => {
-  const { toast } = useToast();
   const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    subject: "",
-    category: "",
-    priority: "",
-    message: ""
+    name: '',
+    email: '',
+    category: '',
+    subject: '',
+    message: ''
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    toast({
-      title: "Support Ticket Submitted",
-      description: "We've received your request and will respond within 24 hours."
-    });
-    setFormData({
-      name: "",
-      email: "",
-      subject: "",
-      category: "",
-      priority: "",
-      message: ""
-    });
+    console.log('Support request:', formData);
+    // Handle form submission
   };
 
-  const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
-  };
+  const supportChannels = [
+    {
+      icon: Mail,
+      title: "Email Support",
+      description: "Get help via email",
+      contact: "support@postrilo.com",
+      responseTime: "Within 24 hours",
+      available: true
+    },
+    {
+      icon: MessageCircle,
+      title: "Live Chat",
+      description: "Chat with our team",
+      contact: "Available in app",
+      responseTime: "Usually within minutes",
+      available: true
+    },
+    {
+      icon: Phone,
+      title: "Phone Support",
+      description: "Talk to our experts",
+      contact: "+1 (555) 123-4567",
+      responseTime: "Business hours only",
+      available: false
+    }
+  ];
 
   return (
     <div className="space-y-6">
-      {/* Response Time Info */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="grid md:grid-cols-3 gap-4 text-center">
-            <div className="flex items-center justify-center gap-2">
-              <Clock className="w-5 h-5 text-green-500" />
-              <div>
-                <p className="font-semibold">Email Support</p>
-                <p className="text-sm text-gray-600">24-48 hours</p>
-              </div>
-            </div>
-            <div className="flex items-center justify-center gap-2">
-              <MessageSquare className="w-5 h-5 text-blue-500" />
-              <div>
-                <p className="font-semibold">Priority Support</p>
-                <p className="text-sm text-gray-600">4-8 hours</p>
-              </div>
-            </div>
-            <div className="flex items-center justify-center gap-2">
-              <Badge className="bg-purple-100 text-purple-800">Business Plan</Badge>
-              <div>
-                <p className="font-semibold">Phone Support</p>
-                <p className="text-sm text-gray-600">1-2 hours</p>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="text-center space-y-2">
+        <h2 className="text-2xl font-bold">Contact Support</h2>
+        <p className="text-gray-600">Need help? We're here to assist you with any questions or issues</p>
+      </div>
 
-      {/* Support Ticket Form */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <MessageSquare className="w-5 h-5" />
-            Submit Support Ticket
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Full Name</Label>
-                <Input
-                  id="name"
-                  value={formData.name}
-                  onChange={(e) => handleInputChange("name", e.target.value)}
-                  placeholder="Your full name"
-                  required
-                />
+      <div className="grid md:grid-cols-2 gap-6">
+        {/* Contact Form */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Send us a message</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="name">Name</Label>
+                  <Input
+                    id="name"
+                    value={formData.name}
+                    onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                    placeholder="Your name"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                    placeholder="your@email.com"
+                  />
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="email">Email Address</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => handleInputChange("email", e.target.value)}
-                  placeholder="your.email@example.com"
-                  required
-                />
-              </div>
-            </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="subject">Subject</Label>
-              <Input
-                id="subject"
-                value={formData.subject}
-                onChange={(e) => handleInputChange("subject", e.target.value)}
-                placeholder="Brief description of your issue"
-                required
-              />
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Category</Label>
-                <Select onValueChange={(value) => handleInputChange("category", value)}>
+              <div>
+                <Label htmlFor="category">Category</Label>
+                <Select value={formData.category} onValueChange={(value) => setFormData(prev => ({ ...prev, category: value }))}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select category" />
+                    <SelectValue placeholder="Select a category" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="technical">Technical Issue</SelectItem>
                     <SelectItem value="billing">Billing Question</SelectItem>
-                    <SelectItem value="account">Account Management</SelectItem>
                     <SelectItem value="feature">Feature Request</SelectItem>
-                    <SelectItem value="content">Content Generation</SelectItem>
+                    <SelectItem value="account">Account Help</SelectItem>
                     <SelectItem value="other">Other</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-              <div className="space-y-2">
-                <Label>Priority</Label>
-                <Select onValueChange={(value) => handleInputChange("priority", value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select priority" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="low">Low</SelectItem>
-                    <SelectItem value="medium">Medium</SelectItem>
-                    <SelectItem value="high">High</SelectItem>
-                    <SelectItem value="urgent">Urgent</SelectItem>
-                  </SelectContent>
-                </Select>
+
+              <div>
+                <Label htmlFor="subject">Subject</Label>
+                <Input
+                  id="subject"
+                  value={formData.subject}
+                  onChange={(e) => setFormData(prev => ({ ...prev, subject: e.target.value }))}
+                  placeholder="Brief description of your issue"
+                />
               </div>
-            </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="message">Message</Label>
-              <Textarea
-                id="message"
-                value={formData.message}
-                onChange={(e) => handleInputChange("message", e.target.value)}
-                placeholder="Please describe your issue in detail..."
-                className="min-h-32"
-                required
-              />
-            </div>
+              <div>
+                <Label htmlFor="message">Message</Label>
+                <Textarea
+                  id="message"
+                  value={formData.message}
+                  onChange={(e) => setFormData(prev => ({ ...prev, message: e.target.value }))}
+                  placeholder="Please describe your issue in detail..."
+                  className="min-h-32"
+                />
+              </div>
 
-            <Button type="submit" className="w-full">
-              <Send className="w-4 h-4 mr-2" />
-              Submit Ticket
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
+              <Button type="submit" className="w-full">
+                Send Message
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
 
-      {/* Direct Email Contact */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Mail className="w-5 h-5" />
-            Direct Email Support
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-center">
-            <p className="text-gray-600 mb-4">
-              Prefer to email us directly? Send your questions to:
-            </p>
-            <div className="flex items-center justify-center gap-2 p-3 bg-gray-50 rounded-lg">
-              <Mail className="w-4 h-4 text-gray-500" />
-              <span className="font-mono text-purple-600">support@yourapp.com</span>
-            </div>
-            <p className="text-sm text-gray-500 mt-2">
-              We typically respond within 24-48 hours
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+        {/* Support Channels */}
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold">Other ways to reach us</h3>
+          
+          {supportChannels.map((channel, index) => (
+            <Card key={index} className={!channel.available ? 'opacity-60' : ''}>
+              <CardContent className="p-4">
+                <div className="flex items-start gap-3">
+                  <channel.icon className="w-6 h-6 text-purple-600 mt-1" />
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <h4 className="font-semibold">{channel.title}</h4>
+                      {channel.available ? (
+                        <Badge variant="secondary" className="bg-green-100 text-green-700">Available</Badge>
+                      ) : (
+                        <Badge variant="secondary">Coming Soon</Badge>
+                      )}
+                    </div>
+                    <p className="text-sm text-gray-600 mb-2">{channel.description}</p>
+                    <p className="text-sm font-medium">{channel.contact}</p>
+                    <div className="flex items-center gap-1 mt-1 text-xs text-gray-500">
+                      <Clock className="w-3 h-3" />
+                      {channel.responseTime}
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+
+          <Card className="bg-blue-50 border-blue-200">
+            <CardContent className="p-4">
+              <h4 className="font-semibold text-blue-900 mb-2">Emergency Issues</h4>
+              <p className="text-sm text-blue-700 mb-3">
+                For urgent issues affecting your account or billing, please use the priority support channel.
+              </p>
+              <Button variant="outline" className="w-full">
+                Priority Support
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 };

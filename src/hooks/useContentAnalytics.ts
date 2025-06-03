@@ -1,110 +1,69 @@
 
 import { useState, useEffect } from 'react';
-import { 
-  ContentAnalyticsService, 
-  ContentMetrics, 
-  AnalyticsInsight, 
-  PlatformPerformance 
-} from '@/services/analytics/contentAnalyticsService';
+
+export interface ContentAnalytics {
+  totalPosts: number;
+  totalEngagement: number;
+  averageEngagementRate: number;
+  topPlatform: string;
+  monthlyGrowth: number;
+  weeklyPosts: number[];
+  platformDistribution: { platform: string; count: number; percentage: number }[];
+  recentPerformance: { date: string; engagement: number; posts: number }[];
+}
 
 export const useContentAnalytics = () => {
-  const [insights, setInsights] = useState<AnalyticsInsight[]>([]);
-  const [platformPerformance, setPlatformPerformance] = useState<PlatformPerformance[]>([]);
-  const [allMetrics, setAllMetrics] = useState<ContentMetrics[]>([]);
+  const [analytics, setAnalytics] = useState<ContentAnalytics>({
+    totalPosts: 0,
+    totalEngagement: 0,
+    averageEngagementRate: 0,
+    topPlatform: 'Instagram',
+    monthlyGrowth: 0,
+    weeklyPosts: [0, 0, 0, 0, 0, 0, 0],
+    platformDistribution: [],
+    recentPerformance: []
+  });
   const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Simulate loading analytics data
+    setTimeout(() => {
+      setAnalytics({
+        totalPosts: 156,
+        totalEngagement: 12450,
+        averageEngagementRate: 4.2,
+        topPlatform: 'Instagram',
+        monthlyGrowth: 23.5,
+        weeklyPosts: [12, 15, 8, 20, 18, 14, 16],
+        platformDistribution: [
+          { platform: 'Instagram', count: 65, percentage: 41.7 },
+          { platform: 'Twitter', count: 42, percentage: 26.9 },
+          { platform: 'LinkedIn', count: 28, percentage: 17.9 },
+          { platform: 'Facebook', count: 21, percentage: 13.5 }
+        ],
+        recentPerformance: [
+          { date: '2024-01-01', engagement: 450, posts: 3 },
+          { date: '2024-01-02', engagement: 320, posts: 2 },
+          { date: '2024-01-03', engagement: 680, posts: 4 },
+          { date: '2024-01-04', engagement: 520, posts: 3 },
+          { date: '2024-01-05', engagement: 750, posts: 5 }
+        ]
+      });
+      setIsLoading(false);
+    }, 1000);
+  }, []);
 
   const refreshAnalytics = () => {
     setIsLoading(true);
-    try {
-      const newInsights = ContentAnalyticsService.getInsights();
-      const newPlatformPerformance = ContentAnalyticsService.getPlatformPerformance();
-      const newMetrics = ContentAnalyticsService.getAllMetrics();
-
-      setInsights(newInsights);
-      setPlatformPerformance(newPlatformPerformance);
-      setAllMetrics(newMetrics);
-    } catch (error) {
-      console.error('Failed to refresh analytics:', error);
-    } finally {
+    // Simulate refresh
+    setTimeout(() => {
       setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    refreshAnalytics();
-  }, []);
-
-  const trackContent = (
-    contentId: string, 
-    platform: string, 
-    contentType: string, 
-    tone: string, 
-    goal: string
-  ) => {
-    ContentAnalyticsService.trackContent(contentId, platform, contentType, tone, goal);
-    refreshAnalytics();
-  };
-
-  const updateMetrics = (contentId: string, updates: Partial<ContentMetrics>) => {
-    ContentAnalyticsService.updateMetrics(contentId, updates);
-    refreshAnalytics();
-  };
-
-  const getContentMetrics = (contentId: string): ContentMetrics | undefined => {
-    return ContentAnalyticsService.getContentMetrics(contentId);
-  };
-
-  const getMetricsByPlatform = (platform: string): ContentMetrics[] => {
-    return allMetrics.filter(m => m.platform === platform);
-  };
-
-  const getMetricsByDateRange = (startDate: Date, endDate: Date): ContentMetrics[] => {
-    return allMetrics.filter(m => 
-      m.timestamp >= startDate.getTime() && 
-      m.timestamp <= endDate.getTime()
-    );
-  };
-
-  const getTopPerformingContent = (limit: number = 5): ContentMetrics[] => {
-    return allMetrics
-      .sort((a, b) => b.engagement - a.engagement)
-      .slice(0, limit);
-  };
-
-  const getEngagementTrend = (days: number = 30): { date: string; engagement: number }[] => {
-    const now = new Date();
-    const startDate = new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
-    
-    const relevantMetrics = getMetricsByDateRange(startDate, now);
-    
-    // Group by day
-    const dailyEngagement: Record<string, number[]> = {};
-    
-    relevantMetrics.forEach(metric => {
-      const date = new Date(metric.timestamp).toISOString().split('T')[0];
-      if (!dailyEngagement[date]) dailyEngagement[date] = [];
-      dailyEngagement[date].push(metric.engagement);
-    });
-
-    // Calculate average engagement per day
-    return Object.entries(dailyEngagement).map(([date, engagements]) => ({
-      date,
-      engagement: engagements.reduce((sum, eng) => sum + eng, 0) / engagements.length
-    })).sort((a, b) => a.date.localeCompare(b.date));
+    }, 500);
   };
 
   return {
-    insights,
-    platformPerformance,
-    allMetrics,
+    analytics,
     isLoading,
-    refreshAnalytics,
-    trackContent,
-    updateMetrics,
-    getContentMetrics,
-    getMetricsByPlatform,
-    getMetricsByDateRange,
-    getTopPerformingContent,
-    getEngagementTrend
+    refreshAnalytics
   };
 };

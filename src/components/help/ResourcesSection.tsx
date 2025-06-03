@@ -1,188 +1,180 @@
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Download, ExternalLink, BookOpen, Calendar, Image, FileText } from "lucide-react";
+import React from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { BookOpen, Video, Download, ExternalLink, Users, Lightbulb } from 'lucide-react';
 
 export const ResourcesSection = () => {
-  const blogArticles = [
+  const resources = [
     {
-      title: "10 Social Media Best Practices for 2024",
-      description: "Learn the latest strategies to boost engagement and grow your audience",
-      readTime: "5 min read",
-      category: "Strategy"
+      category: "Documentation",
+      icon: BookOpen,
+      items: [
+        {
+          title: "User Guide",
+          description: "Complete guide to using Postrilo",
+          type: "Guide",
+          link: "#",
+          popular: true
+        },
+        {
+          title: "API Documentation",
+          description: "For developers and integrations",
+          type: "Technical",
+          link: "#",
+          popular: false
+        },
+        {
+          title: "Best Practices",
+          description: "Tips for effective content creation",
+          type: "Guide",
+          link: "#",
+          popular: true
+        }
+      ]
     },
     {
-      title: "How to Create a Consistent Brand Voice",
-      description: "Step-by-step guide to developing and maintaining your brand's personality",
-      readTime: "8 min read",
-      category: "Branding"
+      category: "Video Tutorials",
+      icon: Video,
+      items: [
+        {
+          title: "Getting Started",
+          description: "5-minute introduction to Postrilo",
+          type: "Video",
+          link: "#",
+          popular: true
+        },
+        {
+          title: "Advanced Features",
+          description: "Deep dive into pro features",
+          type: "Video",
+          link: "#",
+          popular: false
+        },
+        {
+          title: "Content Strategy",
+          description: "Building an effective content plan",
+          type: "Webinar",
+          link: "#",
+          popular: true
+        }
+      ]
     },
     {
-      title: "The Ultimate Guide to Social Media Analytics",
-      description: "Understanding metrics that matter and how to improve your performance",
-      readTime: "12 min read",
-      category: "Analytics"
-    },
-    {
-      title: "Content Scheduling: Best Times to Post",
-      description: "Platform-specific insights on when your audience is most active",
-      readTime: "6 min read",
-      category: "Timing"
+      category: "Downloads",
+      icon: Download,
+      items: [
+        {
+          title: "Content Calendar Template",
+          description: "Plan your content strategy",
+          type: "Template",
+          link: "#",
+          popular: true
+        },
+        {
+          title: "Social Media Guide",
+          description: "Platform-specific best practices",
+          type: "PDF",
+          link: "#",
+          popular: false
+        },
+        {
+          title: "Brand Voice Worksheet",
+          description: "Define your brand personality",
+          type: "Worksheet",
+          link: "#",
+          popular: true
+        }
+      ]
     }
   ];
 
-  const downloadableResources = [
+  const communityResources = [
     {
-      title: "Social Media Content Calendar Template",
-      description: "Excel template to plan and organize your content for the entire month",
-      type: "Excel File",
-      icon: Calendar
+      title: "Community Forum",
+      description: "Connect with other Postrilo users",
+      icon: Users,
+      link: "#",
+      members: "2.4k+"
     },
     {
-      title: "Instagram Image Size Guide",
-      description: "Complete guide with all the optimal dimensions for Instagram posts",
-      type: "PDF Guide",
-      icon: Image
-    },
-    {
-      title: "LinkedIn Content Best Practices",
-      description: "Checklist for creating professional content that performs well",
-      type: "PDF Checklist",
-      icon: FileText
-    },
-    {
-      title: "Twitter/X Engagement Strategies",
-      description: "Proven tactics to increase your reach and engagement on Twitter/X",
-      type: "PDF Guide",
-      icon: FileText
-    }
-  ];
-
-  const platformGuides = [
-    {
-      platform: "Instagram",
-      sizes: [
-        { type: "Feed Post", dimensions: "1080 x 1080 px" },
-        { type: "Story", dimensions: "1080 x 1920 px" },
-        { type: "Reel", dimensions: "1080 x 1920 px" },
-        { type: "IGTV Cover", dimensions: "1080 x 1350 px" }
-      ]
-    },
-    {
-      platform: "Facebook",
-      sizes: [
-        { type: "Feed Post", dimensions: "1200 x 630 px" },
-        { type: "Story", dimensions: "1080 x 1920 px" },
-        { type: "Cover Photo", dimensions: "820 x 312 px" },
-        { type: "Event Cover", dimensions: "1920 x 1080 px" }
-      ]
-    },
-    {
-      platform: "Twitter/X",
-      sizes: [
-        { type: "Tweet Image", dimensions: "1200 x 675 px" },
-        { type: "Header", dimensions: "1500 x 500 px" },
-        { type: "Profile Photo", dimensions: "400 x 400 px" }
-      ]
-    },
-    {
-      platform: "LinkedIn",
-      sizes: [
-        { type: "Post Image", dimensions: "1200 x 627 px" },
-        { type: "Cover Photo", dimensions: "1584 x 396 px" },
-        { type: "Company Logo", dimensions: "300 x 300 px" }
-      ]
+      title: "Feature Requests",
+      description: "Suggest and vote on new features",
+      icon: Lightbulb,
+      link: "#",
+      members: "856"
     }
   ];
 
   return (
     <div className="space-y-6">
-      {/* Blog Articles */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <BookOpen className="w-5 h-5" />
-            Blog Articles & Best Practices
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid md:grid-cols-2 gap-4">
-            {blogArticles.map((article, index) => (
-              <div key={index} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
-                <div className="flex items-start justify-between mb-2">
-                  <Badge variant="outline">{article.category}</Badge>
-                  <span className="text-xs text-gray-500">{article.readTime}</span>
-                </div>
-                <h4 className="font-semibold mb-2">{article.title}</h4>
-                <p className="text-sm text-gray-600 mb-3">{article.description}</p>
-                <Button variant="ghost" size="sm" className="p-0 h-auto">
-                  Read Article <ExternalLink className="w-3 h-3 ml-1" />
-                </Button>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      <div className="text-center space-y-2">
+        <h2 className="text-2xl font-bold">Resources & Learning</h2>
+        <p className="text-gray-600">Everything you need to master content creation with Postrilo</p>
+      </div>
 
-      {/* Downloadable Resources */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Download className="w-5 h-5" />
-            Downloadable Resources
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {downloadableResources.map((resource, index) => {
-              const Icon = resource.icon;
-              return (
-                <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                      <Icon className="w-5 h-5 text-purple-600" />
+      <div className="grid gap-6">
+        {resources.map((category, index) => (
+          <Card key={index}>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <category.icon className="w-5 h-5 text-purple-600" />
+                {category.category}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-4">
+                {category.items.map((item, itemIndex) => (
+                  <div key={itemIndex} className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 transition-colors">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h4 className="font-medium">{item.title}</h4>
+                        {item.popular && <Badge variant="secondary" className="text-xs">Popular</Badge>}
+                      </div>
+                      <p className="text-sm text-gray-600">{item.description}</p>
+                      <Badge variant="outline" className="text-xs mt-1">{item.type}</Badge>
                     </div>
-                    <div>
-                      <h4 className="font-semibold">{resource.title}</h4>
-                      <p className="text-sm text-gray-600">{resource.description}</p>
-                      <Badge variant="outline" className="mt-1">{resource.type}</Badge>
-                    </div>
+                    <Button variant="ghost" size="sm">
+                      <ExternalLink className="w-4 h-4" />
+                    </Button>
                   </div>
-                  <Button variant="outline" size="sm">
-                    <Download className="w-4 h-4 mr-2" />
-                    Download
-                  </Button>
-                </div>
-              );
-            })}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Platform Size Guides */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Image className="w-5 h-5" />
-            Platform-Specific Image Size Guides
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid md:grid-cols-2 gap-6">
-            {platformGuides.map((platform, index) => (
-              <div key={index} className="space-y-3">
-                <h4 className="font-semibold text-lg">{platform.platform}</h4>
-                <div className="space-y-2">
-                  {platform.sizes.map((size, sizeIndex) => (
-                    <div key={sizeIndex} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                      <span className="text-sm font-medium">{size.type}</span>
-                      <span className="text-sm text-gray-600 font-mono">{size.dimensions}</span>
-                    </div>
-                  ))}
-                </div>
+                ))}
               </div>
-            ))}
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      <div className="grid md:grid-cols-2 gap-4">
+        <h3 className="text-lg font-semibold md:col-span-2">Community</h3>
+        {communityResources.map((resource, index) => (
+          <Card key={index} className="hover:shadow-md transition-shadow cursor-pointer">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <resource.icon className="w-8 h-8 text-purple-600" />
+                <div className="flex-1">
+                  <h4 className="font-semibold">{resource.title}</h4>
+                  <p className="text-sm text-gray-600">{resource.description}</p>
+                  <p className="text-xs text-gray-500 mt-1">{resource.members} members</p>
+                </div>
+                <ExternalLink className="w-4 h-4 text-gray-400" />
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      <Card className="bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200">
+        <CardContent className="p-6">
+          <div className="text-center space-y-4">
+            <h3 className="text-xl font-bold text-purple-900">Need Personalized Help?</h3>
+            <p className="text-purple-700">
+              Book a one-on-one session with our content experts to optimize your strategy
+            </p>
+            <Button className="bg-purple-600 hover:bg-purple-700">
+              Schedule Consultation
+            </Button>
           </div>
         </CardContent>
       </Card>

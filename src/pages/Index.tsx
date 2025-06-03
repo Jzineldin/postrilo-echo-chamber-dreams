@@ -81,7 +81,7 @@ const Index = () => {
     }
   };
 
-  // Render based on active tab
+  // Render based on active tab - removed duplicate navigation
   switch (activeTab) {
     case "auth":
       return (

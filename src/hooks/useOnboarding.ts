@@ -1,40 +1,35 @@
 
 import { useState, useEffect } from 'react';
 
-const ONBOARDING_STORAGE_KEY = 'postrilo_onboarding_completed';
-
 export const useOnboarding = () => {
-  const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(true);
+  const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
 
   useEffect(() => {
-    const completed = localStorage.getItem(ONBOARDING_STORAGE_KEY);
-    const isCompleted = completed === 'true';
-    setHasCompletedOnboarding(isCompleted);
+    const completed = localStorage.getItem('onboarding_completed');
+    const hasCompleted = completed === 'true';
+    setHasCompletedOnboarding(hasCompleted);
     
-    // Show onboarding for new users after a small delay
-    if (!isCompleted) {
-      const timer = setTimeout(() => {
-        setShowOnboarding(true);
-      }, 1000);
-      return () => clearTimeout(timer);
+    // Show onboarding tour if user hasn't completed it
+    if (!hasCompleted) {
+      setShowOnboarding(true);
     }
   }, []);
 
   const completeOnboarding = () => {
-    localStorage.setItem(ONBOARDING_STORAGE_KEY, 'true');
+    localStorage.setItem('onboarding_completed', 'true');
     setHasCompletedOnboarding(true);
     setShowOnboarding(false);
   };
 
   const skipOnboarding = () => {
-    localStorage.setItem(ONBOARDING_STORAGE_KEY, 'true');
+    localStorage.setItem('onboarding_completed', 'true');
     setHasCompletedOnboarding(true);
     setShowOnboarding(false);
   };
 
   const restartOnboarding = () => {
-    localStorage.removeItem(ONBOARDING_STORAGE_KEY);
+    localStorage.removeItem('onboarding_completed');
     setHasCompletedOnboarding(false);
     setShowOnboarding(true);
   };
