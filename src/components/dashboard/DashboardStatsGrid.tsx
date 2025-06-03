@@ -1,75 +1,70 @@
 
-import React from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { 
-  FileText, 
-  TrendingUp, 
-  Users, 
-  BarChart3
-} from "lucide-react";
+import React from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { FileText, CreditCard, Save, TrendingUp } from 'lucide-react';
 
-interface StatsData {
-  contentGenerated: number;
-  remainingCredits: number | string;
-  postsSaved: number;
-  engagementRate: string;
-}
-
-interface DashboardStatsGridProps {
-  stats: StatsData;
+interface StatsGridProps {
+  stats: {
+    contentGenerated: number;
+    remainingCredits: number;
+    postsSaved: number;
+    engagementRate: string;
+  };
   subscribed: boolean;
 }
 
-export const DashboardStatsGrid = ({ stats, subscribed }: DashboardStatsGridProps) => {
-  const statsConfig = [
+export const DashboardStatsGrid = ({ stats, subscribed }: StatsGridProps) => {
+  const statCards = [
     {
       title: "Content Generated",
       value: stats.contentGenerated,
       icon: FileText,
-      color: "from-blue-50 to-blue-100 border-blue-200",
-      iconColor: "text-blue-600",
-      textColor: "text-blue-800"
+      color: "text-blue-600",
+      bgColor: "bg-blue-50"
     },
     {
-      title: subscribed ? "Unlimited" : "Remaining Credits",
+      title: "Remaining Credits",
       value: stats.remainingCredits,
-      icon: BarChart3,
-      color: "from-green-50 to-green-100 border-green-200",
-      iconColor: "text-green-600",
-      textColor: "text-green-800"
+      icon: CreditCard,
+      color: "text-green-600",
+      bgColor: "bg-green-50",
+      subtitle: subscribed ? "Unlimited" : "Resets monthly"
     },
     {
       title: "Posts Saved",
       value: stats.postsSaved,
-      icon: FileText,
-      color: "from-purple-50 to-purple-100 border-purple-200",
-      iconColor: "text-purple-600",
-      textColor: "text-purple-800"
+      icon: Save,
+      color: "text-purple-600",
+      bgColor: "bg-purple-50"
     },
     {
       title: "Engagement Rate",
       value: stats.engagementRate,
       icon: TrendingUp,
-      color: "from-orange-50 to-orange-100 border-orange-200",
-      iconColor: "text-orange-600",
-      textColor: "text-orange-800"
+      color: "text-orange-600",
+      bgColor: "bg-orange-50"
     }
   ];
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-      {statsConfig.map((stat, index) => {
-        const Icon = stat.icon;
-        return (
-          <Card key={index} className={`bg-gradient-to-br ${stat.color}`}>
-            <CardContent className="p-4 text-center">
-              <Icon className={`w-8 h-8 mx-auto mb-2 ${stat.iconColor}`} />
-              <div className={`text-2xl font-bold ${stat.textColor}`}>{stat.value}</div>
-              <div className={`text-sm ${stat.iconColor}`}>{stat.title}</div>
-            </CardContent>
-          </Card>
-        );
-      })}
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      {statCards.map((stat, index) => (
+        <Card key={index}>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
+            <stat.icon className={`h-4 w-4 ${stat.color}`} />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stat.value}</div>
+            {stat.subtitle && (
+              <Badge variant="outline" className="mt-1 text-xs">
+                {stat.subtitle}
+              </Badge>
+            )}
+          </CardContent>
+        </Card>
+      ))}
     </div>
   );
 };
