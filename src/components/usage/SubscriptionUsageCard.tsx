@@ -13,7 +13,7 @@ export const SubscriptionUsageCard = () => {
     planName, 
     postsUsedThisMonth, 
     monthlyPostsLimit,
-    billingPeriodEnd 
+    subscriptionEnd 
   } = useSubscription();
 
   const usagePercentage = (postsUsedThisMonth / monthlyPostsLimit) * 100;
@@ -85,9 +85,9 @@ export const SubscriptionUsageCard = () => {
           )}
 
           {/* Billing Info */}
-          {subscribed && billingPeriodEnd && (
+          {subscribed && subscriptionEnd && (
             <div className="text-xs text-gray-600 text-center pt-2 border-t">
-              Next billing: {new Date(billingPeriodEnd).toLocaleDateString()}
+              Next billing: {new Date(subscriptionEnd).toLocaleDateString()}
             </div>
           )}
         </div>
