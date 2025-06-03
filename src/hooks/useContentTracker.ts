@@ -20,12 +20,7 @@ export const useContentTracker = () => {
     // Simulate initial metrics (in real app, these would come from actual platform APIs)
     setTimeout(() => {
       const simulatedMetrics = {
-        impressions: Math.floor(Math.random() * 1000) + 100,
-        engagement: Math.floor(Math.random() * 100) + 10,
-        clicks: Math.floor(Math.random() * 50) + 5,
-        shares: Math.floor(Math.random() * 20) + 1,
-        saves: Math.floor(Math.random() * 15) + 1,
-        comments: Math.floor(Math.random() * 10) + 1,
+        engagement: Math.floor(Math.random() * 1000) + 100,
         reach: Math.floor(Math.random() * 800) + 200
       };
       
