@@ -1,103 +1,134 @@
 
-import React from "react";
+import { useState, useEffect } from "react";
 import { useAppNavigation } from "@/hooks/useAppNavigation";
-import { AppLayout } from "@/components/AppLayout";
-import { AppTabContent } from "@/components/AppTabContent";
-import { LandingPageContainer } from "@/components/landing/LandingPageContainer";
+import { useAppInitializer } from "@/hooks/useAppInitializer";
+import { LandingPage } from "@/components/LandingPage";
+import { Dashboard } from "@/components/dashboard/Dashboard";
 import { AuthPage } from "@/components/AuthPage";
-import { ErrorBoundary } from "@/components/error/ErrorBoundary";
-import { DashboardSkeleton } from "@/components/ui/LoadingStates";
-import { useOfflineDetection } from "@/hooks/useOfflineDetection";
-import { Badge } from "@/components/ui/badge";
-import { WifiOff } from "lucide-react";
+import { AppLoading } from "@/components/AppLoading";
+import { PricingPage } from "@/components/PricingPage";
+import { HelpSupportPage } from "@/components/HelpSupportPage";
+import { AnalyticsDashboard } from "@/components/analytics/AnalyticsDashboard";
+import { ContentGenerator } from "@/components/ContentGenerator";
+import { BrandVoiceManager } from "@/components/BrandVoiceManager";
+import { ContentScheduler } from "@/components/ContentScheduler";
+import { SettingsPanel } from "@/components/SettingsPanel";
 
 const Index = () => {
-  const {
-    activeTab,
-    user,
-    loading,
-    handleAuth,
-    handleAuthSuccess,
-    handleLogout,
-    handleTabChange
+  const { isInitialized, isLoading, error } = useAppInitializer();
+  const { 
+    activeTab, 
+    user, 
+    loading: authLoading, 
+    handleAuth, 
+    handleAuthSuccess, 
+    handleLogout, 
+    handleTabChange 
   } = useAppNavigation();
 
-  const { isOnline } = useOfflineDetection();
-
-  console.log("Index page rendering:", { activeTab, user: !!user, loading });
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <DashboardSkeleton />
-        </div>
-      </div>
-    );
+  // Show loading while initializing or authenticating
+  if (isLoading || authLoading || !isInitialized) {
+    return <AppLoading />;
   }
 
-  // Show auth page if on auth route
-  if (activeTab === "auth") {
+  // Show error state if initialization failed
+  if (error) {
     return (
-      <ErrorBoundary>
-        <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50">
-          <AuthPage
-            onAuthSuccess={handleAuthSuccess}
-            onBackToHome={() => handleTabChange("home")}
-          />
-        </div>
-      </ErrorBoundary>
-    );
-  }
-
-  // Show landing page for unauthenticated users or when on home tab
-  if (!user || activeTab === "home") {
-    return (
-      <ErrorBoundary>
-        <LandingPageContainer
-          onGetStarted={() => {
-            console.log("Index: onGetStarted called, calling handleAuth");
-            handleAuth();
-          }}
-          onTryDemo={() => {
-            console.log("Index: onTryDemo called, calling handleTabChange('create')");
-            handleTabChange("create");
-          }}
-        />
-      </ErrorBoundary>
-    );
-  }
-
-  // Show authenticated app with single navigation
-  return (
-    <ErrorBoundary>
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-purple-100">
-        {/* Offline indicator */}
-        {!isOnline && (
-          <div className="bg-orange-100 border-b border-orange-200 px-4 py-2">
-            <div className="flex items-center justify-center gap-2 text-orange-800">
-              <WifiOff className="w-4 h-4" />
-              <span className="text-sm">You're currently offline. Some features may not work properly.</span>
-            </div>
-          </div>
-        )}
-        
-        <ErrorBoundary>
-          <AppLayout
-            activeTab={activeTab}
-            user={user}
-            onTabChange={handleTabChange}
-            onLogout={handleLogout}
+      <div className="min-h-screen flex items-center justify-center bg-red-50">
+        <div className="text-center p-8">
+          <h1 className="text-2xl font-bold text-red-600 mb-4">Startup Error</h1>
+          <p className="text-gray-700 mb-4">{error}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
           >
-            <AppTabContent
-              user={user}
-              onTabChange={handleTabChange}
-            />
-          </AppLayout>
-        </ErrorBoundary>
+            Retry
+          </button>
+        </div>
       </div>
-    </ErrorBoundary>
-  );
+    );
+  }
+
+  const handleGetStarted = () => {
+    console.log("Get Started clicked - user authenticated:", !!user);
+    if (user) {
+      handleTabChange("dashboard");
+    } else {
+      handleAuth();
+    }
+  };
+
+  const handleTryDemo = () => {
+    console.log("Try Demo clicked - user authenticated:", !!user);
+    if (user) {
+      handleTabChange("create");
+    } else {
+      // Show demo mode for non-authenticated users
+      handleTabChange("demo");
+    }
+  };
+
+  // Render based on active tab
+  switch (activeTab) {
+    case "auth":
+      return <AuthPage onAuthSuccess={handleAuthSuccess} />;
+    
+    case "dashboard":
+      if (!user) {
+        handleAuth();
+        return <AppLoading />;
+      }
+      return <Dashboard />;
+    
+    case "create":
+      if (!user) {
+        handleAuth();
+        return <AppLoading />;
+      }
+      return <ContentGenerator />;
+    
+    case "analytics":
+      if (!user) {
+        handleAuth();
+        return <AppLoading />;
+      }
+      return <AnalyticsDashboard />;
+    
+    case "brand-voice":
+      if (!user) {
+        handleAuth();
+        return <AppLoading />;
+      }
+      return <BrandVoiceManager />;
+    
+    case "scheduler":
+      if (!user) {
+        handleAuth();
+        return <AppLoading />;
+      }
+      return <ContentScheduler />;
+    
+    case "settings":
+      if (!user) {
+        handleAuth();
+        return <AppLoading />;
+      }
+      return <SettingsPanel />;
+    
+    case "pricing":
+      return <PricingPage />;
+    
+    case "help":
+      return <HelpSupportPage />;
+    
+    default:
+      return (
+        <LandingPage
+          onGetStarted={handleGetStarted}
+          onTryDemo={handleTryDemo}
+        />
+      );
+  }
 };
 
 export default Index;
