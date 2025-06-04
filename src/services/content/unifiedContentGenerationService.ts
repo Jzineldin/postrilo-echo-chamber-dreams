@@ -1,6 +1,5 @@
 
-import { centralizedAIService } from '@/services/centralizedAIService';
-import { RobustContentGenerationService } from '@/services/ai/robustContentGenerationService';
+import { EnhancedContentGenerationService, EnhancedGenerationRequest } from './enhancedContentGenerationService';
 import { DetailedAIError } from '@/services/ai/improvedErrorHandling';
 
 export interface UnifiedGenerationRequest {
@@ -50,6 +49,8 @@ export class UnifiedContentGenerationService {
     onError?: (error: DetailedAIError) => void
   ): Promise<UnifiedGenerationResponse | null> {
     try {
+      console.log('🎯 UnifiedContentGeneration: Starting generation for:', request.topic);
+      
       // Update progress
       onProgress?.({
         stage: 'initializing',
@@ -57,8 +58,18 @@ export class UnifiedContentGenerationService {
         progress: 10
       });
 
-      // Build enhanced prompt
-      const enhancedPrompt = this.buildEnhancedPrompt(request);
+      // Input validation
+      if (!request.topic?.trim()) {
+        const error: DetailedAIError = {
+          type: 'validation_error',
+          message: 'Topic is required',
+          userFriendlyMessage: 'Please provide a topic for your content.',
+          retryable: true,
+          suggestedAction: 'Enter a topic or subject for your content.'
+        };
+        onError?.(error);
+        return null;
+      }
 
       onProgress?.({
         stage: 'analyzing',
@@ -66,27 +77,38 @@ export class UnifiedContentGenerationService {
         progress: 25
       });
 
-      // Use robust generation service
-      const response = await RobustContentGenerationService.generateWithRobustErrorHandling(
-        {
-          prompt: enhancedPrompt,
-          type: request.contentType === 'video-script' ? 'video-script' : 'content',
-          platform: request.platform,
-          maxRetries: request.maxRetries || 3,
-          showProgressToUser: true
-        },
-        (message) => {
-          onProgress?.({
-            stage: 'generating',
-            message,
-            progress: 50
-          });
-        }
-      );
+      // Convert to enhanced request
+      const enhancedRequest: EnhancedGenerationRequest = {
+        topic: request.topic,
+        platform: request.platform,
+        contentType: request.contentType,
+        tone: request.tone,
+        goal: request.goal,
+        keyPoints: request.keyPoints,
+        emojiUsage: request.emojiUsage,
+        hashtagDensity: request.hashtagDensity,
+        shortSentences: request.shortSentences,
+        maxRetries: request.maxRetries || 3
+      };
 
-      if (!response.success && response.error) {
-        onError?.(response.error);
-        return null;
+      onProgress?.({
+        stage: 'generating',
+        message: 'Generating your content...',
+        progress: 50
+      });
+
+      // Use enhanced generation service
+      const result = await EnhancedContentGenerationService.generateContent(enhancedRequest);
+
+      if (!result.success && result.error) {
+        const error: DetailedAIError = {
+          type: 'generation_error',
+          message: result.error,
+          userFriendlyMessage: 'Content generation failed. Using fallback content.',
+          retryable: true,
+          suggestedAction: 'Try again or modify your topic.'
+        };
+        onError?.(error);
       }
 
       onProgress?.({
@@ -96,24 +118,22 @@ export class UnifiedContentGenerationService {
       });
 
       // Create unified response
-      const contentId = `content_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      
       const unifiedResponse: UnifiedGenerationResponse = {
-        id: contentId,
-        content: response.content,
-        platform: request.platform,
-        contentType: request.contentType,
-        tone: request.tone,
-        goal: request.goal,
-        topic: request.topic,
-        timestamp: Date.now(),
-        hashtags: [],
-        fallbackUsed: response.fallbackUsed,
+        id: result.id,
+        content: result.content,
+        platform: result.platform,
+        contentType: result.contentType,
+        tone: result.tone,
+        goal: result.goal,
+        topic: result.topic,
+        timestamp: result.timestamp,
+        hashtags: result.hashtags,
+        fallbackUsed: result.fallbackUsed,
         metadata: {
-          platform: request.platform,
-          contentType: request.contentType,
-          generatedAt: Date.now(),
-          promptVersion: response.fallbackUsed ? 'fallback' : 'v2.0'
+          platform: result.platform,
+          contentType: result.contentType,
+          generatedAt: result.timestamp,
+          promptVersion: result.metadata.promptVersion
         }
       };
 
@@ -123,11 +143,12 @@ export class UnifiedContentGenerationService {
         progress: 100
       });
 
-      onSuccess?.(unifiedResponse, response.fallbackUsed);
+      onSuccess?.(unifiedResponse, result.fallbackUsed);
+      console.log('✅ UnifiedContentGeneration: Content generated successfully');
       return unifiedResponse;
 
     } catch (error) {
-      console.error('Unified content generation failed:', error);
+      console.error('🚨 UnifiedContentGeneration: Service error:', error);
       
       const detailedError: DetailedAIError = {
         type: 'unknown',
@@ -142,23 +163,15 @@ export class UnifiedContentGenerationService {
     }
   }
 
-  private static buildEnhancedPrompt(request: UnifiedGenerationRequest): string {
-    return `Create a ${request.contentType} for ${request.platform} about: ${request.topic}
-
-Platform: ${request.platform}
-Goal: ${request.goal}
-Tone: ${request.tone}
-${request.keyPoints ? `Key points: ${request.keyPoints}` : ''}
-
-Requirements:
-- Write engaging copy optimized for ${request.platform}
-- Use ${request.tone} tone throughout
-- ${request.emojiUsage ? 'Include relevant emojis' : 'No emojis'}
-- ${request.shortSentences ? 'Use short, punchy sentences' : 'Use natural sentence flow'}
-- Include a strong call-to-action`;
-  }
-
   static getRandomContentBrief(): string {
-    return centralizedAIService.getRandomContentBrief();
+    const topics = [
+      'Tips for staying productive while working from home',
+      'The importance of work-life balance in modern careers',
+      'How to build meaningful professional relationships',
+      'Strategies for personal growth and development',
+      'The future of remote work and digital collaboration'
+    ];
+    
+    return topics[Math.floor(Math.random() * topics.length)];
   }
 }
