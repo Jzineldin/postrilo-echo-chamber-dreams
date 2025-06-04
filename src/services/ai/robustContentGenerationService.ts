@@ -4,7 +4,7 @@ import { ImprovedAIErrorHandler, DetailedAIError } from './improvedErrorHandling
 
 export interface RobustGenerationRequest {
   prompt: string;
-  type?: "content" | "hashtags" | "video-script";
+  type?: "content" | "video-script"; // Fixed: removed "hashtags" type
   platform?: string;
   maxRetries?: number;
   showProgressToUser?: boolean;

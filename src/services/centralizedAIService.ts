@@ -1,5 +1,6 @@
 import { coreAIService } from './ai/coreAIService';
 import { fallbackGenerators } from './ai/fallbackGenerators';
+import { contentOptimizationService } from './ai/contentOptimizationService';
 import { ContentGenerationOptimizer, PerformanceMonitor } from './performance/contentGenerationOptimizer';
 
 interface UsageMetrics {
@@ -91,6 +92,24 @@ class CentralizedAIService {
           totalTokens: 0
         }
       };
+    }
+  }
+
+  async optimizeContent(request: { content: string; platform: string; objective: string }) {
+    try {
+      return await contentOptimizationService.optimizeContent(request);
+    } catch (error) {
+      console.error('🚨 Content optimization failed:', error);
+      return [];
+    }
+  }
+
+  async improveContent(content: string, improvements: string[]) {
+    try {
+      return await contentOptimizationService.improveContent(content, improvements);
+    } catch (error) {
+      console.error('🚨 Content improvement failed:', error);
+      return content; // Return original content as fallback
     }
   }
 
