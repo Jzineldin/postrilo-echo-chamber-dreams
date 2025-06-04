@@ -13,6 +13,7 @@ import ContentGenerator from "@/components/ContentGenerator";
 import { BrandVoiceManager } from "@/components/BrandVoiceManager";
 import { ContentScheduler } from "@/components/ContentScheduler";
 import { SettingsPanel } from "@/components/SettingsPanel";
+import { ContentGeneratorErrorBoundary } from "@/components/error/ContentGeneratorErrorBoundary";
 
 const Index = () => {
   const { isInitialized, isLoading, error } = useAppInitializer();
@@ -103,7 +104,11 @@ const Index = () => {
         handleAuth();
         return <AppLoading />;
       }
-      return <ContentGenerator />;
+      return (
+        <ContentGeneratorErrorBoundary>
+          <ContentGenerator />
+        </ContentGeneratorErrorBoundary>
+      );
     
     case "analytics":
       if (!user) {

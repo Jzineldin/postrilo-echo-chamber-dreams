@@ -1,17 +1,29 @@
 
 import React from "react";
-import UnifiedContentGenerator from "./UnifiedContentGenerator";
+import { SimpleContentGenerator } from "./SimpleContentGenerator";
+import { useSubscription } from "@/hooks/useSubscription";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { AlertCircle, RefreshCw } from "lucide-react";
 
 const ContentGenerator = () => {
-  console.log("ContentGenerator: Routing to UnifiedContentGenerator");
+  console.log("ContentGenerator: Loading SimpleContentGenerator");
+  
+  const { postsUsedThisMonth, monthlyPostsLimit } = useSubscription();
+  const postsRemaining = Math.max(0, monthlyPostsLimit - postsUsedThisMonth);
+  const canGenerateMore = postsRemaining > 0;
   
   try {
-    return <UnifiedContentGenerator />;
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-purple-100">
+        <SimpleContentGenerator 
+          canGenerateMore={canGenerateMore}
+          postsRemaining={postsRemaining}
+        />
+      </div>
+    );
   } catch (error) {
-    console.error("ContentGenerator: Error loading UnifiedContentGenerator", error);
+    console.error("ContentGenerator: Error loading SimpleContentGenerator", error);
     
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-purple-100 p-4">
