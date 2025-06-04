@@ -43,10 +43,11 @@ export const useSecureContentGeneration = () => {
         promptLength: request.prompt.length
       });
 
-      // Generate content with sanitized prompt
+      // Generate content with sanitized prompt - fix type issue
+      const contentType = request.type === 'video-script' ? 'video-script' : 'content';
       const result = await centralizedAIService.generateContent({
         prompt: validation.sanitizedContent || request.prompt,
-        type: request.type || 'content',
+        type: contentType,
         platforms: request.platforms,
         temperature: request.temperature,
         maxTokens: request.maxTokens

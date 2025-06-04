@@ -27,7 +27,11 @@ export class AuthGuard {
    */
   static useRequireAdmin() {
     const { user } = useAuth();
-    const { isAdmin, loading } = useUserRole();
+    const userRoleData = useUserRole();
+    
+    // Handle both possible return types from useUserRole
+    const isAdmin = 'isAdmin' in userRoleData ? userRoleData.isAdmin : false;
+    const loading = 'loading' in userRoleData ? userRoleData.loading : false;
     
     if (loading) return { hasAccess: false, isLoading: true };
     
