@@ -50,9 +50,11 @@ export const useUserRole = () => {
 
   return {
     role,
+    userRole: role, // Alias for compatibility
     loading,
     isAdmin,
     isModerator,
+    isUser: !!user,
     hasRole
   };
 };
