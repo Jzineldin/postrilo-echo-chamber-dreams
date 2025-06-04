@@ -100,7 +100,7 @@ export const ContentFormCard = ({ formData, onFormDataChange }: ContentFormCardP
           <Label htmlFor="contentType">Content Type</Label>
           <Select 
             value={formData.contentType} 
-            onValueChange={(value) => onFormDataChange({ contentType: value })}
+            onValueChange={(value) => onFormDataChange({ contentType: value as FormData['contentType'] })}
           >
             <SelectTrigger>
               <SelectValue />
@@ -108,6 +108,10 @@ export const ContentFormCard = ({ formData, onFormDataChange }: ContentFormCardP
             <SelectContent>
               <SelectItem value="post">Social Media Post</SelectItem>
               <SelectItem value="video-script">Video Script</SelectItem>
+              <SelectItem value="story">Story</SelectItem>
+              <SelectItem value="reel">Reel</SelectItem>
+              <SelectItem value="carousel">Carousel</SelectItem>
+              <SelectItem value="thread">Thread</SelectItem>
             </SelectContent>
           </Select>
         </div>
