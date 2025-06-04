@@ -5,11 +5,18 @@ import { Button } from '@/components/ui/button';
 import { Crown, Sparkles, Plus } from 'lucide-react';
 import { useSubscription } from '@/hooks/useSubscription';
 
-export const DashboardHeader = () => {
+interface DashboardHeaderProps {
+  onTabChange?: (tab: string) => void;
+}
+
+export const DashboardHeader = ({ onTabChange }: DashboardHeaderProps) => {
   const { subscribed, planName } = useSubscription();
 
   const handleCreateContent = () => {
     console.log('Navigate to content creation');
+    if (onTabChange) {
+      onTabChange('create');
+    }
   };
 
   return (
