@@ -32,7 +32,7 @@ export const DashboardHeader = () => {
         </Badge>
         <Button 
           variant="default" 
-          className="create-content-button"
+          className="create-content-button !text-white"
           onClick={handleCreateContent}
         >
           <Plus className="w-4 h-4 mr-1" />
