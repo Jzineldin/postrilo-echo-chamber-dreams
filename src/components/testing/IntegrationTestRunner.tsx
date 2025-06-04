@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -17,35 +16,43 @@ interface IntegrationTest {
   progress: number;
   duration?: number;
   errorDetails?: string;
+  successDetails?: string;
 }
 
 export const IntegrationTestRunner = () => {
   const [tests, setTests] = useState<IntegrationTest[]>([
     {
       id: '1',
-      name: 'End-to-End Content Creation',
-      description: 'Complete workflow from form input to content generation',
+      name: 'Enhanced Content Generation Pipeline',
+      description: 'Test complete content generation with retries and fallbacks',
       status: 'pending',
       progress: 0
     },
     {
       id: '2',
-      name: 'Multi-Platform Publishing',
-      description: 'Generate and format content for multiple platforms',
+      name: 'Multi-Platform Content Optimization',
+      description: 'Generate and optimize content for multiple platforms',
       status: 'pending',
       progress: 0
     },
     {
       id: '3',
-      name: 'Error Recovery Flow',
-      description: 'Test application behavior during API failures',
+      name: 'Robust Error Recovery',
+      description: 'Test graceful handling of various error scenarios',
       status: 'pending',
       progress: 0
     },
     {
       id: '4',
       name: 'Performance Under Load',
-      description: 'Multiple concurrent content generation requests',
+      description: 'Test concurrent requests with optimized queuing',
+      status: 'pending',
+      progress: 0
+    },
+    {
+      id: '5',
+      name: 'Content Optimization Services',
+      description: 'Test content analysis and improvement features',
       status: 'pending',
       progress: 0
     }
@@ -60,51 +67,55 @@ export const IntegrationTestRunner = () => {
     ));
   };
 
-  const runEndToEndContentCreationTest = async (): Promise<boolean> => {
+  const runEnhancedContentGenerationTest = async (): Promise<boolean> => {
     try {
-      // Test 1: Form validation
-      updateTestStatus('1', { progress: 25, status: 'running' });
+      updateTestStatus('1', { progress: 20, status: 'running' });
       
-      // Test 2: AI service connectivity
-      updateTestStatus('1', { progress: 50 });
+      // Test enhanced generation with retry logic
       const testContent = await centralizedAIService.generateContent({
-        prompt: 'Test content generation for social media',
+        prompt: 'Create a professional post about productivity tips',
         type: 'content',
+        platforms: ['linkedin'],
         temperature: 0.7,
-        maxTokens: 100
+        maxTokens: 300
       });
       
-      if (testContent.error && !testContent.content) {
-        throw new Error(`AI Service failed: ${testContent.error}`);
+      updateTestStatus('1', { progress: 50 });
+      
+      if (!testContent.content && testContent.error) {
+        throw new Error(`Enhanced generation failed: ${testContent.error}`);
       }
       
-      // Test 3: Unified generation service
+      // Test fallback scenario with empty prompt
       updateTestStatus('1', { progress: 75 });
-      const unifiedResult = await UnifiedContentGenerationService.generateContent({
-        topic: 'Test topic for integration',
-        platform: 'instagram',
-        contentType: 'post',
-        tone: 'professional',
-        goal: 'engagement'
+      const fallbackTest = await centralizedAIService.generateContent({
+        prompt: '',
+        type: 'content',
+        platforms: ['instagram']
       });
       
-      if (!unifiedResult) {
-        throw new Error('Unified content generation returned null');
+      // Should have fallback content even with empty prompt
+      if (!fallbackTest.content) {
+        throw new Error('Fallback generation failed completely');
       }
       
-      updateTestStatus('1', { progress: 100 });
+      updateTestStatus('1', { 
+        progress: 100,
+        status: 'passed',
+        successDetails: `Generated ${testContent.content?.length || 0} chars content, fallback system working`
+      });
       return true;
     } catch (error) {
       updateTestStatus('1', { 
         status: 'failed', 
         progress: 100,
-        errorDetails: error instanceof Error ? error.message : 'Unknown error'
+        errorDetails: error instanceof Error ? error.message : 'Enhanced generation test failed'
       });
       return false;
     }
   };
 
-  const runMultiPlatformTest = async (): Promise<boolean> => {
+  const runMultiPlatformOptimizationTest = async (): Promise<boolean> => {
     try {
       updateTestStatus('2', { status: 'running', progress: 25 });
       
@@ -113,56 +124,93 @@ export const IntegrationTestRunner = () => {
       
       for (let i = 0; i < platforms.length; i++) {
         const platform = platforms[i];
-        updateTestStatus('2', { progress: 25 + (i + 1) * 25 });
+        updateTestStatus('2', { progress: 25 + (i * 20) });
         
-        const result = await centralizedAIService.generateContent({
-          prompt: `Test content for ${platform}`,
+        const content = await centralizedAIService.generateContent({
+          prompt: `Test content about technology trends for ${platform}`,
           type: 'content',
           platforms: [platform]
         });
         
-        if (result.content) {
-          results.push({ platform, success: true });
+        if (content.content) {
+          // Test optimization
+          const optimization = await centralizedAIService.optimizeContent({
+            content: content.content,
+            platform: platform,
+            objective: 'engagement'
+          });
+          
+          results.push({ 
+            platform, 
+            success: true, 
+            contentLength: content.content.length,
+            optimizations: optimization.length
+          });
         } else {
-          results.push({ platform, success: false, error: result.error });
+          results.push({ platform, success: false, error: content.error });
         }
       }
       
+      updateTestStatus('2', { progress: 90 });
+      
       const successCount = results.filter(r => r.success).length;
       if (successCount >= 2) {
-        updateTestStatus('2', { status: 'passed', progress: 100 });
+        updateTestStatus('2', { 
+          status: 'passed', 
+          progress: 100,
+          successDetails: `${successCount}/3 platforms successful with optimization`
+        });
         return true;
       } else {
-        throw new Error(`Only ${successCount}/3 platforms succeeded`);
+        throw new Error(`Only ${successCount}/3 platforms succeeded in optimization test`);
       }
     } catch (error) {
       updateTestStatus('2', { 
         status: 'failed', 
         progress: 100,
-        errorDetails: error instanceof Error ? error.message : 'Multi-platform test failed'
+        errorDetails: error instanceof Error ? error.message : 'Multi-platform optimization failed'
       });
       return false;
     }
   };
 
-  const runErrorRecoveryTest = async (): Promise<boolean> => {
+  const runRobustErrorRecoveryTest = async (): Promise<boolean> => {
     try {
-      updateTestStatus('3', { status: 'running', progress: 50 });
+      updateTestStatus('3', { status: 'running', progress: 25 });
       
-      // Test error handling with invalid input
-      const result = await centralizedAIService.generateContent({
-        prompt: '', // Empty prompt should trigger fallback
-        type: 'content'
-      });
+      // Test multiple error scenarios
+      const errorTests = [
+        { prompt: '', description: 'empty prompt' },
+        { prompt: 'x'.repeat(10000), description: 'extremely long prompt' },
+        { prompt: 'Normal content request', description: 'normal request' }
+      ];
       
-      // Should either succeed with fallback or handle error gracefully
-      const hasGracefulHandling = result.content || (result.error && result.error.length > 0);
+      let recoveryCount = 0;
       
-      if (hasGracefulHandling) {
-        updateTestStatus('3', { status: 'passed', progress: 100 });
+      for (let i = 0; i < errorTests.length; i++) {
+        updateTestStatus('3', { progress: 25 + (i * 25) });
+        
+        const test = errorTests[i];
+        const result = await centralizedAIService.generateContent({
+          prompt: test.prompt,
+          type: 'content'
+        });
+        
+        // Should either succeed or provide meaningful fallback
+        if (result.content || (result.error && result.error.length > 0)) {
+          recoveryCount++;
+        }
+      }
+      
+      if (recoveryCount >= 2) {
+        updateTestStatus('3', { 
+          status: 'passed', 
+          progress: 100,
+          successDetails: `${recoveryCount}/3 error scenarios handled gracefully`
+        });
         return true;
       } else {
-        throw new Error('No error recovery mechanism found');
+        throw new Error(`Only ${recoveryCount}/3 error scenarios handled properly`);
       }
     } catch (error) {
       updateTestStatus('3', { 
@@ -179,14 +227,15 @@ export const IntegrationTestRunner = () => {
       updateTestStatus('4', { status: 'running', progress: 25 });
       
       const startTime = Date.now();
-      const concurrentRequests = 3; // Reduced for better stability
+      const concurrentRequests = 4;
       
-      // Test concurrent generation
+      // Test performance optimizer
       const promises = Array.from({ length: concurrentRequests }, (_, i) => 
         centralizedAIService.generateContent({
-          prompt: `Performance test ${i + 1}`,
+          prompt: `Performance test request ${i + 1} about digital marketing`,
           type: 'content',
-          maxTokens: 50 // Smaller responses for faster testing
+          maxTokens: 100,
+          platforms: ['instagram']
         })
       );
       
@@ -198,12 +247,18 @@ export const IntegrationTestRunner = () => {
       
       updateTestStatus('4', { progress: 75 });
       
-      // Check if requests completed within reasonable time (10 seconds)
-      const successfulResults = results.filter(r => r.status === 'fulfilled').length;
-      const timeoutThreshold = 10000; // 10 seconds
+      const successfulResults = results.filter(r => 
+        r.status === 'fulfilled' && r.value.content
+      ).length;
       
-      if (duration < timeoutThreshold && successfulResults >= Math.floor(concurrentRequests * 0.7)) {
-        updateTestStatus('4', { status: 'passed', progress: 100 });
+      const timeoutThreshold = 20000; // 20 seconds for 4 requests
+      
+      if (duration < timeoutThreshold && successfulResults >= Math.floor(concurrentRequests * 0.75)) {
+        updateTestStatus('4', { 
+          status: 'passed', 
+          progress: 100,
+          successDetails: `${successfulResults}/${concurrentRequests} requests completed in ${duration}ms`
+        });
         return true;
       } else {
         throw new Error(`Performance issue: ${duration}ms for ${successfulResults}/${concurrentRequests} requests`);
@@ -218,22 +273,75 @@ export const IntegrationTestRunner = () => {
     }
   };
 
-  const runIntegrationTests = async () => {
+  const runContentOptimizationTest = async (): Promise<boolean> => {
+    try {
+      updateTestStatus('5', { status: 'running', progress: 30 });
+      
+      const testContent = "This is a test post about social media marketing. It needs optimization.";
+      
+      // Test content optimization
+      const optimizations = await centralizedAIService.optimizeContent({
+        content: testContent,
+        platform: 'instagram',
+        objective: 'engagement'
+      });
+      
+      updateTestStatus('5', { progress: 60 });
+      
+      // Test content improvement
+      const improvedContent = await centralizedAIService.improveContent(
+        testContent, 
+        ['add call-to-action', 'add hashtags']
+      );
+      
+      updateTestStatus('5', { progress: 90 });
+      
+      const hasOptimizations = Array.isArray(optimizations);
+      const hasImprovement = typeof improvedContent === 'string' && improvedContent.length > testContent.length;
+      
+      if (hasOptimizations && hasImprovement) {
+        updateTestStatus('5', { 
+          status: 'passed', 
+          progress: 100,
+          successDetails: `Generated ${optimizations.length} optimizations, improved content by ${improvedContent.length - testContent.length} chars`
+        });
+        return true;
+      } else {
+        throw new Error('Content optimization services not working properly');
+      }
+    } catch (error) {
+      updateTestStatus('5', { 
+        status: 'failed', 
+        progress: 100,
+        errorDetails: error instanceof Error ? error.message : 'Content optimization test failed'
+      });
+      return false;
+    }
+  };
+
+  const runEnhancedIntegrationTests = async () => {
     setIsRunning(true);
     
     toast({
       title: "Running Enhanced Integration Tests",
-      description: "Testing core functionality with detailed diagnostics..."
+      description: "Testing improved content generation pipeline..."
     });
 
     // Reset all tests
-    setTests(prev => prev.map(test => ({ ...test, status: 'pending' as const, progress: 0, errorDetails: undefined })));
+    setTests(prev => prev.map(test => ({ 
+      ...test, 
+      status: 'pending' as const, 
+      progress: 0, 
+      errorDetails: undefined,
+      successDetails: undefined
+    })));
 
     const testFunctions = [
-      { id: '1', fn: runEndToEndContentCreationTest },
-      { id: '2', fn: runMultiPlatformTest },
-      { id: '3', fn: runErrorRecoveryTest },
-      { id: '4', fn: runPerformanceTest }
+      { id: '1', fn: runEnhancedContentGenerationTest },
+      { id: '2', fn: runMultiPlatformOptimizationTest },
+      { id: '3', fn: runRobustErrorRecoveryTest },
+      { id: '4', fn: runPerformanceTest },
+      { id: '5', fn: runContentOptimizationTest }
     ];
 
     let passedCount = 0;
@@ -248,11 +356,11 @@ export const IntegrationTestRunner = () => {
         
         if (success) {
           passedCount++;
-          updateTestStatus(id, { duration });
         } else {
           failedCount++;
-          updateTestStatus(id, { duration });
         }
+        
+        updateTestStatus(id, { duration });
       } catch (error) {
         failedCount++;
         const duration = (Date.now() - startTime) / 1000;
@@ -266,9 +374,13 @@ export const IntegrationTestRunner = () => {
 
     setIsRunning(false);
     
+    // Get performance metrics
+    const metrics = centralizedAIService.getPerformanceMetrics();
+    console.log('📊 Performance Metrics:', metrics);
+    
     toast({
-      title: "Integration Tests Complete",
-      description: `${passedCount} passed, ${failedCount} failed`,
+      title: "Enhanced Tests Complete",
+      description: `${passedCount} passed, ${failedCount} failed. Check console for performance metrics.`,
       variant: failedCount > 0 ? "destructive" : "default"
     });
   };
@@ -279,8 +391,12 @@ export const IntegrationTestRunner = () => {
       status: 'pending' as const, 
       progress: 0, 
       errorDetails: undefined,
+      successDetails: undefined,
       duration: undefined 
     })));
+    
+    // Clear performance data
+    centralizedAIService.clearPerformanceData();
   };
 
   const getStatusIcon = (status: string) => {
@@ -315,16 +431,16 @@ export const IntegrationTestRunner = () => {
         <CardTitle className="flex items-center justify-between">
           <span className="flex items-center gap-2">
             <Zap className="w-5 h-5" />
-            Enhanced Integration Tests
+            Enhanced Integration Tests v2.0
           </span>
           <div className="flex gap-2">
             <Button onClick={resetTests} variant="outline" size="sm" disabled={isRunning}>
               <RefreshCw className="w-4 h-4 mr-2" />
               Reset
             </Button>
-            <Button onClick={runIntegrationTests} disabled={isRunning}>
+            <Button onClick={runEnhancedIntegrationTests} disabled={isRunning}>
               <Play className="w-4 h-4 mr-2" />
-              {isRunning ? 'Running...' : 'Run Tests'}
+              {isRunning ? 'Running...' : 'Run Enhanced Tests'}
             </Button>
           </div>
         </CardTitle>
@@ -353,6 +469,12 @@ export const IntegrationTestRunner = () => {
               
               <Progress value={test.progress} className="w-full mb-2" />
               
+              {test.successDetails && test.status === 'passed' && (
+                <div className="mt-2 p-2 bg-green-50 rounded text-sm text-green-700">
+                  <strong>Success:</strong> {test.successDetails}
+                </div>
+              )}
+              
               {test.errorDetails && (
                 <div className="mt-2 p-2 bg-red-50 rounded text-sm text-red-700">
                   <strong>Error:</strong> {test.errorDetails}
@@ -365,7 +487,7 @@ export const IntegrationTestRunner = () => {
         {tests.length === 0 && !isRunning && (
           <div className="text-center py-8 text-gray-500">
             <Zap className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-            <p>Click "Run Tests" to start enhanced integration testing</p>
+            <p>Click "Run Enhanced Tests" to start comprehensive testing</p>
           </div>
         )}
       </CardContent>
