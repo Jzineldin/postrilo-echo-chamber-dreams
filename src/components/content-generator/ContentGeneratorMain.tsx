@@ -5,7 +5,8 @@ import { useLoadingState } from "@/hooks/useLoadingState";
 import { useNotifications } from "@/hooks/useNotifications";
 import { useSubscriptionFeatures } from "@/hooks/useSubscriptionFeatures";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { centralizedAIService } from "@/services/centralizedAIService";
+import { useSecureContentGeneration } from "@/hooks/useSecureContentGeneration";
+import { AuthGuard } from "@/services/security/authGuard";
 import { enhancedTemplateService } from "@/services/ai/enhancedTemplateService";
 import { platformOptimizationService } from "@/services/ai/platformOptimizationService";
 import { retryService } from "@/services/retryService";
@@ -19,7 +20,7 @@ import { ContentTypeExpanded } from "./ContentTypeExpanded";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Sparkles, Zap, Palette } from "lucide-react";
+import { Sparkles, Zap, Palette, Shield } from "lucide-react";
 
 interface ContentGeneratorMainProps {
   canGenerateMore: boolean;
@@ -37,10 +38,47 @@ export const ContentGeneratorMain = ({ canGenerateMore, postsRemaining }: Conten
   const [contentMetadata, setContentMetadata] = useState<any>(null);
   
   const { toast } = useToast();
-  const { executeWithLoading, isLoading, error } = useLoadingState();
   const { addSuccess, addError, addWarning } = useNotifications();
   const { hasAccess } = useSubscriptionFeatures();
   const isMobile = useIsMobile();
+  
+  // Use secure content generation
+  const { generateContent: secureGenerateContent, isGenerating, validationErrors } = useSecureContentGeneration();
+  
+  // Authentication guard
+  const { isAuthenticated, isLoading: authLoading, user } = AuthGuard.useRequireAuth();
+
+  if (authLoading) {
+    return (
+      <Card className="bg-white/80 backdrop-blur-sm">
+        <CardContent className="p-8 text-center">
+          <div className="animate-spin w-6 h-6 border-2 border-purple-600 border-t-transparent rounded-full mx-auto mb-4"></div>
+          <p className="text-gray-600">Checking authentication...</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <Card className="border-yellow-200 bg-yellow-50">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-yellow-800">
+            <Shield className="w-5 h-5" />
+            Authentication Required
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-yellow-700 mb-4">
+            You need to be logged in to generate content. This ensures your content is secure and personalized.
+          </p>
+          <Button onClick={() => window.location.href = '/auth'}>
+            Sign In
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
 
   const handlePlatformToggle = (platformId: string) => {
     setSelectedPlatforms(prev => {
@@ -50,90 +88,6 @@ export const ContentGeneratorMain = ({ canGenerateMore, postsRemaining }: Conten
         return [platformId];
       }
     });
-  };
-
-  const handleEnhancedTemplateSelect = (templateId: string, variables: Record<string, string>) => {
-    const template = enhancedTemplateService.getTemplate(templateId);
-    if (template) {
-      const prompt = enhancedTemplateService.interpolateTemplate(template, variables);
-      setCustomPrompt(variables.topic || '');
-      setActiveTemplate(templateId);
-      
-      // Auto-set platform if specified in variables
-      if (variables.platform) {
-        setSelectedPlatforms([variables.platform]);
-      }
-      
-      generateContentWithPrompt(prompt);
-    }
-  };
-
-  const handlePresetSelect = (preset: any) => {
-    // Apply preset settings and generate content
-    const options: ContentGenerationOptions = {
-      template: activeTemplate,
-      platforms: selectedPlatforms,
-      customPrompt: customPrompt,
-      contentType: preset.id.includes('video') ? 'video-script' : contentType,
-      tone: preset.tone,
-      contentGoal: preset.goal,
-      contentLength: preset.contentLength,
-      hashtagCount: preset.hashtagDensity,
-      includeEmojis: preset.emojiUsage,
-      includeHashtags: preset.hashtagDensity !== 'none'
-    };
-    
-    generateContent(options);
-  };
-
-  const generateContentWithPrompt = async (prompt: string) => {
-    if (!canGenerateMore) {
-      addError("Post Limit Reached", "You've reached your monthly post limit.");
-      return;
-    }
-
-    const result = await executeWithLoading(
-      async () => {
-        const response = await retryService.withRetry(
-          () => centralizedAIService.generateContent({
-            prompt,
-            type: 'content',
-            temperature: 0.7,
-            maxTokens: 600,
-            platforms: selectedPlatforms
-          }),
-          retryService.aiGeneration
-        );
-
-        if (response.error && !response.content) {
-          throw new Error(response.error);
-        }
-
-        const content = response.content;
-        setGeneratedContent(content);
-        
-        // Optimize content for platform
-        if (selectedPlatforms[0]) {
-          const optimization = platformOptimizationService.optimizeContent(
-            content, 
-            selectedPlatforms[0]
-          );
-          
-          if (optimization.warnings.length > 0) {
-            addWarning("Content Optimization", optimization.warnings.join(', '));
-          }
-        }
-        
-        addSuccess("Content Generated!", `Created content for ${selectedPlatforms[0]}`);
-        return content;
-      },
-      {
-        component: 'ContentGeneratorMain',
-        action: 'generateContent'
-      }
-    );
-
-    return result;
   };
 
   const generateContent = async (options: ContentGenerationOptions) => {
@@ -146,101 +100,51 @@ export const ContentGeneratorMain = ({ canGenerateMore, postsRemaining }: Conten
     setGeneratedHashtags([]);
     setContentMetadata(null);
 
-    const result = await executeWithLoading(
-      async () => {
-        if (!options.customPrompt?.trim()) {
-          throw new Error("Please provide a topic or description for your content.");
-        }
-
-        if (!options.platforms || options.platforms.length === 0) {
-          throw new Error("Please select at least one platform.");
-        }
-        
-        // Use platform optimization service to create optimized prompt
-        const optimizedPrompt = platformOptimizationService.generatePlatformSpecificPrompt(
-          options.customPrompt,
-          options.platforms[0],
-          options.contentGoal || 'engagement'
-        );
-        
-        toast({
-          title: "Generating Content",
-          description: `Creating ${options.contentType} for ${options.platforms[0]}...`,
-        });
-        
-        const response = await retryService.withRetry(
-          () => centralizedAIService.generateContent({
-            prompt: optimizedPrompt,
-            templateId: options.template,
-            type: options.contentType === 'video-script' ? 'video-script' : 'content',
-            temperature: 0.7,
-            maxTokens: options.contentType === 'video-script' ? 800 : 600,
-            platforms: options.platforms
-          }),
-          retryService.aiGeneration
-        );
-
-        if (response.error && !response.content) {
-          throw new Error(response.error);
-        }
-
-        const content = response.content;
-        if (!content || content.trim().length === 0) {
-          throw new Error("No content was generated. Please try again.");
-        }
-
-        setGeneratedContent(content);
-        
-        // Optimize and analyze content
-        const optimization = platformOptimizationService.optimizeContent(
-          content,
-          options.platforms[0]
-        );
-        
-        if (optimization.recommendations.length > 0) {
-          console.log('Platform recommendations:', optimization.recommendations);
-        }
-        
-        if (optimization.warnings.length > 0) {
-          addWarning("Content Optimization", optimization.warnings.join(', '));
-        }
-        
-        setContentMetadata({
-          platform: options.platforms[0],
-          contentType: options.contentType,
-          tone: options.tone,
-          goal: options.contentGoal,
-          topic: options.customPrompt,
-          hashtags: []
-        });
-        
-        // Generate hashtags if enabled
-        if (options.contentType === 'post' && options.includeHashtags && hasAccess('hasHashtagResearch')) {
-          try {
-            const hashtags = await centralizedAIService.generateHashtags(content, 8);
-            setGeneratedHashtags(hashtags);
-            setContentMetadata(prev => prev ? { ...prev, hashtags } : null);
-          } catch (error) {
-            console.error('Hashtag generation failed:', error);
-          }
-        }
-        
-        const isUsingFallback = response.usage?.totalTokens === 0;
-        const successMessage = isUsingFallback ? 
-          `Content generated for ${options.platforms[0]}! (Smart Fallback)` : 
-          `Content generated for ${options.platforms[0]}!`;
-        
-        addSuccess(successMessage, `${postsRemaining - 1} posts remaining this month.`);
-        
-        return content;
-      },
-      {
-        component: 'ContentGeneratorMain',
-        action: 'generateContent'
+    try {
+      if (!options.customPrompt?.trim()) {
+        throw new Error("Please provide a topic or description for your content.");
       }
-    );
 
-    return result;
+      if (!options.platforms || options.platforms.length === 0) {
+        throw new Error("Please select at least one platform.");
+      }
+      
+      toast({
+        title: "Generating Content",
+        description: `Creating ${options.contentType} for ${options.platforms[0]}...`,
+      });
+      
+      // Use secure content generation
+      const result = await secureGenerateContent({
+        prompt: options.customPrompt,
+        type: options.contentType === 'video-script' ? 'video-script' : 'content',
+        platforms: options.platforms,
+        temperature: 0.7,
+        maxTokens: options.contentType === 'video-script' ? 800 : 600
+      });
+
+      if (!result.content || result.content.trim().length === 0) {
+        throw new Error("No content was generated. Please try again.");
+      }
+
+      setGeneratedContent(result.content);
+      
+      setContentMetadata({
+        platform: options.platforms[0],
+        contentType: options.contentType,
+        tone: options.tone,
+        goal: options.contentGoal,
+        topic: options.customPrompt,
+        hashtags: []
+      });
+      
+      addSuccess("Content Generated Securely!", `Content created for ${options.platforms[0]} with security validation.`);
+      
+      return result.content;
+    } catch (error) {
+      console.error('Content generation error:', error);
+      addError("Generation Failed", error instanceof Error ? error.message : "Please try again.");
+    }
   };
 
   const copyToClipboard = () => {
@@ -263,13 +167,31 @@ export const ContentGeneratorMain = ({ canGenerateMore, postsRemaining }: Conten
   return (
     <div className="space-y-6 mt-0">
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold">Enhanced Content Generator</h3>
+        <h3 className="text-lg font-semibold flex items-center gap-2">
+          <Shield className="w-5 h-5 text-green-600" />
+          Secure Content Generator
+        </h3>
         <ContentHistoryModal onSelectContent={(content) => {
           setCustomPrompt(content.topic);
           setSelectedPlatforms([content.platform]);
           setContentType(content.contentType);
         }} />
       </div>
+
+      {validationErrors.length > 0 && (
+        <Card className="border-red-200 bg-red-50">
+          <CardContent className="p-4">
+            <div className="text-red-700">
+              <strong>Security Validation Errors:</strong>
+              <ul className="list-disc ml-4 mt-2">
+                {validationErrors.map((error, index) => (
+                  <li key={index}>{error}</li>
+                ))}
+              </ul>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <Tabs value={activeMode} onValueChange={(value) => setActiveMode(value as any)}>
         <TabsList className="grid w-full grid-cols-3">
@@ -299,7 +221,7 @@ export const ContentGeneratorMain = ({ canGenerateMore, postsRemaining }: Conten
             selectedPlatforms={selectedPlatforms}
             customPrompt={customPrompt}
             contentType={contentType}
-            isGenerating={isLoading}
+            isGenerating={isGenerating}
             canGenerateMore={canGenerateMore}
             onTemplateSelect={setActiveTemplate}
             onPlatformToggle={handlePlatformToggle}
@@ -312,13 +234,33 @@ export const ContentGeneratorMain = ({ canGenerateMore, postsRemaining }: Conten
         <TabsContent value="enhanced" className="space-y-6">
           <EnhancedTemplateSelector
             selectedPlatforms={selectedPlatforms}
-            onTemplateSelect={handleEnhancedTemplateSelect}
+            onTemplateSelect={(templateId, variables) => {
+              setCustomPrompt(variables.topic || '');
+              setActiveTemplate(templateId);
+              if (variables.platform) {
+                setSelectedPlatforms([variables.platform]);
+              }
+            }}
             onBack={() => setActiveMode('standard')}
           />
         </TabsContent>
 
         <TabsContent value="presets" className="space-y-6">
-          <ContentStylePresets onPresetSelect={handlePresetSelect} />
+          <ContentStylePresets onPresetSelect={(preset) => {
+            const options: ContentGenerationOptions = {
+              template: activeTemplate,
+              platforms: selectedPlatforms,
+              customPrompt: customPrompt,
+              contentType: preset.id.includes('video') ? 'video-script' : contentType,
+              tone: preset.tone,
+              contentGoal: preset.goal,
+              contentLength: preset.contentLength,
+              hashtagCount: preset.hashtagDensity,
+              includeEmojis: preset.emojiUsage,
+              includeHashtags: preset.hashtagDensity !== 'none'
+            };
+            generateContent(options);
+          }} />
         </TabsContent>
       </Tabs>
       
@@ -330,16 +272,6 @@ export const ContentGeneratorMain = ({ canGenerateMore, postsRemaining }: Conten
           contentMetadata={contentMetadata}
           onCopy={copyToClipboard}
         />
-      )}
-      
-      {error && (
-        <Card className="border-red-200 bg-red-50">
-          <CardContent className="p-4">
-            <div className="text-red-700">
-              <strong>Error:</strong> {error}
-            </div>
-          </CardContent>
-        </Card>
       )}
     </div>
   );
