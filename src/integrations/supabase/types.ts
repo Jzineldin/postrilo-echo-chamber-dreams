@@ -176,6 +176,42 @@ export type Database = {
           },
         ]
       }
+      security_events: {
+        Row: {
+          details: Json | null
+          event: string
+          id: string
+          ip_address: unknown | null
+          severity: string
+          source: string
+          timestamp: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          details?: Json | null
+          event: string
+          id?: string
+          ip_address?: unknown | null
+          severity: string
+          source?: string
+          timestamp?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          details?: Json | null
+          event?: string
+          id?: string
+          ip_address?: unknown | null
+          severity?: string
+          source?: string
+          timestamp?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       subscribers: {
         Row: {
           billing_period_end: string | null
