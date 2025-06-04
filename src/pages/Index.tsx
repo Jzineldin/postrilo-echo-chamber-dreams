@@ -96,7 +96,7 @@ const Index = () => {
         handleAuth();
         return <AppLoading />;
       }
-      return <Dashboard />;
+      return <Dashboard onTabChange={handleTabChange} />;
     
     case "create":
       if (!user) {
