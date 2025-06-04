@@ -16,7 +16,7 @@ export const useEnhancedContentGeneration = (
   const generateEnhancedContent = async (formData: FormData) => {
     if (!formData.topic?.trim()) {
       onGenerationError({
-        type: 'unknown',
+        type: 'validation_error',
         message: "Please provide a topic for your content",
         userFriendlyMessage: "Please provide a topic for your content",
         retryable: false
@@ -71,6 +71,12 @@ export const useEnhancedContentGeneration = (
         topic: formData.topic,
         timestamp: Date.now(),
         hashtags: [],
+        cached: false,
+        usage: {
+          promptTokens: response.usage?.promptTokens || 0,
+          completionTokens: response.usage?.completionTokens || 0,
+          totalTokens: response.usage?.totalTokens || 0
+        },
         metadata: {
           platform: formData.platform,
           contentType: formData.contentType,

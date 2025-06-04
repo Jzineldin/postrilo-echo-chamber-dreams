@@ -137,7 +137,7 @@ export const SecurityDashboard = () => {
                         {Object.entries(stats.bySeverity).map(([severity, count]) => (
                           <div key={severity} className="flex justify-between items-center">
                             <Badge className={getSeverityColor(severity)}>{severity}</Badge>
-                            <span className="font-medium">{count}</span>
+                            <span className="font-medium">{String(count)}</span>
                           </div>
                         ))}
                       </div>
