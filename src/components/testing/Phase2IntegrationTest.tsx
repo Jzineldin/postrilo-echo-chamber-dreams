@@ -38,8 +38,8 @@ export const Phase2IntegrationTest = () => {
   const { toast } = useToast();
   
   // Hook integrations to test
-  const { user } = useAuth();
-  const { userRole, isAdmin, loading: roleLoading } = useUserRole();
+  const { user, loading: authLoading } = useAuth();
+  const { userRole, isAdmin } = useUserRole();
   const { 
     subscribed, 
     planName, 
@@ -72,6 +72,9 @@ export const Phase2IntegrationTest = () => {
       id: 'auth-integration',
       name: 'Authentication Integration',
       test: () => {
+        if (authLoading) {
+          return { status: 'warning' as const, message: 'Authentication loading...', details: 'Authentication system is still loading' };
+        }
         if (!user) {
           return { status: 'warning' as const, message: 'No user logged in - expected for testing', details: 'Authentication system is available but no user is currently authenticated' };
         }
@@ -82,9 +85,6 @@ export const Phase2IntegrationTest = () => {
       id: 'user-roles',
       name: 'User Role System',
       test: () => {
-        if (roleLoading) {
-          return { status: 'warning' as const, message: 'Role system loading...', details: 'User role is still being fetched' };
-        }
         if (!userRole) {
           return { status: 'warning' as const, message: 'No role assigned', details: 'User role system available but no role detected' };
         }
@@ -361,7 +361,7 @@ export const Phase2IntegrationTest = () => {
                 <span className="text-sm font-medium">User Role</span>
               </div>
               <p className="text-xs text-gray-600">
-                {roleLoading ? 'Loading...' : userRole || 'No role'}
+                {userRole || 'No role'}
               </p>
             </div>
             
