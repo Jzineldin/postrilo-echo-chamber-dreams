@@ -32,7 +32,7 @@ export const DashboardHeader = () => {
         </Badge>
         <Button 
           variant="default" 
-          className="create-content-button bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600 text-white border-0 shadow-lg"
+          className="create-content-button"
           onClick={handleCreateContent}
         >
           <Plus className="w-4 h-4 mr-1" />
