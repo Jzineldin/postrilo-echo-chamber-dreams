@@ -1,4 +1,3 @@
-
 import { PromptOptimizer } from '../promptOptimizer';
 import { coreAIService } from './coreAIService';
 import { fallbackGenerators } from './fallbackGenerators';
@@ -37,7 +36,11 @@ export class ContentGenerationService {
       if (result.error && !result.fallback) {
         console.log('⚠️ ContentGeneration: AI failed, using intelligent fallback');
         return {
-          content: fallbackGenerators.generateIntelligentFallback(request),
+          content: fallbackGenerators.generateIntelligentFallback({
+            prompt: request.prompt,
+            type: request.type || 'content',
+            platforms: request.platforms || []
+          }),
           error: result.error,
           usage: {
             promptTokens: 0,
@@ -47,7 +50,11 @@ export class ContentGenerationService {
         };
       }
 
-      const responseContent = result.content || fallbackGenerators.generateIntelligentFallback(request);
+      const responseContent = result.content || fallbackGenerators.generateIntelligentFallback({
+        prompt: request.prompt,
+        type: request.type || 'content',
+        platforms: request.platforms || []
+      });
       const isUsingFallback = result.fallback || !result.content;
 
       console.log(`✅ ContentGeneration: Generated ${responseContent.length} characters${isUsingFallback ? ' (fallback)' : ''}`);
@@ -66,7 +73,11 @@ export class ContentGenerationService {
       console.error('🚨 ContentGeneration: Service error:', error);
       
       return {
-        content: fallbackGenerators.generateIntelligentFallback(request),
+        content: fallbackGenerators.generateIntelligentFallback({
+          prompt: request.prompt,
+          type: request.type || 'content',
+          platforms: request.platforms || []
+        }),
         error: 'Content generation temporarily unavailable - using smart fallback',
         usage: {
           promptTokens: 0,
