@@ -1,4 +1,7 @@
-import { useToast } from "@/hooks/use-toast";
+
+import { OAuthService, OAuthTokens } from './oauth/OAuthService';
+import { TwitterAPIService } from './platforms/TwitterAPIService';
+import { LinkedInAPIService } from './platforms/LinkedInAPIService';
 
 export interface SocialMediaPost {
   platform: string;
@@ -13,14 +16,18 @@ export interface SocialMediaConnection {
   platform: string;
   isConnected: boolean;
   username?: string;
-  accessToken?: string;
-  refreshToken?: string;
-  expiresAt?: Date;
-  apiConfig?: {
-    clientId?: string;
-    clientSecret?: string;
-    redirectUri?: string;
-  };
+  displayName?: string;
+  profileImage?: string;
+  tokens?: OAuthTokens;
+  lastSync?: Date;
+  clientId?: string;
+  clientSecret?: string;
+}
+
+export interface PlatformCredentials {
+  clientId: string;
+  clientSecret: string;
+  redirectUri: string;
 }
 
 export class SocialMediaService {
@@ -28,70 +35,119 @@ export class SocialMediaService {
     'twitter', 'instagram', 'facebook', 'linkedin', 'tiktok', 'youtube'
   ];
 
-  static async connectPlatform(platform: string, credentials: any): Promise<{ success: boolean; error?: string }> {
-    try {
-      console.log(`🔗 Connecting to ${platform}...`);
+  static async initiateOAuth(platform: string, credentials: PlatformCredentials): Promise<{ authUrl: string; state: string }> {
+    if (!this.SUPPORTED_PLATFORMS.includes(platform)) {
+      throw new Error(`Platform ${platform} is not supported`);
+    }
+
+    const state = OAuthService.generateStateParameter();
+    const authUrl = OAuthService.generateAuthUrl(platform, credentials.clientId, credentials.redirectUri, state);
+    
+    // Store state for validation
+    sessionStorage.setItem(`oauth_state_${platform}`, state);
+    
+    return { authUrl, state };
+  }
+
+  static async handleOAuthCallback(
+    platform: string, 
+    code: string, 
+    state: string, 
+    credentials: PlatformCredentials
+  ): Promise<SocialMediaConnection> {
+    // Validate state
+    const expectedState = sessionStorage.getItem(`oauth_state_${platform}`);
+    if (!expectedState || !OAuthService.validateState(state, expectedState)) {
+      throw new Error('Invalid OAuth state parameter');
+    }
+
+    // Exchange code for tokens
+    const tokens = await OAuthService.exchangeCodeForTokens(
+      platform,
+      code,
+      credentials.clientId,
+      credentials.clientSecret,
+      credentials.redirectUri
+    );
+
+    // Get user profile
+    const userProfile = await this.getUserProfile(platform, tokens);
+
+    const connection: SocialMediaConnection = {
+      platform,
+      isConnected: true,
+      username: userProfile.username,
+      displayName: userProfile.displayName,
+      profileImage: userProfile.profileImage,
+      tokens,
+      lastSync: new Date(),
+      clientId: credentials.clientId,
+      clientSecret: credentials.clientSecret
+    };
+
+    // Store connection
+    this.saveConnection(platform, connection);
+    
+    // Clean up state
+    sessionStorage.removeItem(`oauth_state_${platform}`);
+    
+    return connection;
+  }
+
+  static async getUserProfile(platform: string, tokens: OAuthTokens): Promise<{ username: string; displayName: string; profileImage?: string }> {
+    switch (platform) {
+      case 'twitter':
+        const twitterUser = await TwitterAPIService.getUser(tokens);
+        return {
+          username: twitterUser.username,
+          displayName: twitterUser.name,
+          profileImage: twitterUser.profileImageUrl
+        };
       
-      // Validate platform
-      if (!this.SUPPORTED_PLATFORMS.includes(platform)) {
-        return { success: false, error: `Platform ${platform} is not supported` };
-      }
-
-      // Simulate OAuth flow for demo purposes
-      const connection: SocialMediaConnection = {
-        platform,
-        isConnected: true,
-        username: credentials.username,
-        accessToken: 'demo_token_' + Date.now(),
-        expiresAt: new Date(Date.now() + 3600000) // 1 hour from now
-      };
-
-      // Store connection
-      this.saveConnection(platform, connection);
+      case 'linkedin':
+        const linkedinUser = await LinkedInAPIService.getUser(tokens);
+        return {
+          username: `${linkedinUser.firstName} ${linkedinUser.lastName}`,
+          displayName: `${linkedinUser.firstName} ${linkedinUser.lastName}`,
+          profileImage: linkedinUser.profilePicture
+        };
       
-      console.log(`✅ Successfully connected to ${platform}`);
-      return { success: true };
-
-    } catch (error) {
-      console.error(`❌ Failed to connect to ${platform}:`, error);
-      return { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Connection failed' 
-      };
+      default:
+        throw new Error(`User profile retrieval not implemented for ${platform}`);
     }
   }
 
   static async testConnection(platform: string): Promise<{ success: boolean; error?: string }> {
     try {
-      // Check if platform is supported
-      if (!this.SUPPORTED_PLATFORMS.includes(platform)) {
-        return { success: false, error: `Platform ${platform} is not supported` };
-      }
-
-      // Check for stored credentials
       const connection = this.getStoredConnection(platform);
-      if (!connection || !connection.isConnected) {
+      if (!connection || !connection.isConnected || !connection.tokens) {
         return { success: false, error: `${platform} is not connected` };
       }
 
-      // Check if token is expired
-      if (connection.expiresAt && new Date() > connection.expiresAt) {
-        return { success: false, error: `${platform} connection has expired` };
+      // Check if token is expired and refresh if needed
+      if (connection.tokens.expiresAt && new Date() > connection.tokens.expiresAt) {
+        if (connection.tokens.refreshToken && connection.clientId && connection.clientSecret) {
+          try {
+            const newTokens = await OAuthService.refreshAccessToken(
+              platform,
+              connection.tokens.refreshToken,
+              connection.clientId,
+              connection.clientSecret
+            );
+            connection.tokens = newTokens;
+            this.saveConnection(platform, connection);
+          } catch (error) {
+            return { success: false, error: `Token refresh failed: ${error}` };
+          }
+        } else {
+          return { success: false, error: `${platform} connection has expired and cannot be refreshed` };
+        }
       }
 
-      // Test the connection based on platform
-      switch (platform) {
-        case 'twitter':
-          return await this.testTwitterConnection(connection);
-        case 'instagram':
-          return await this.testInstagramConnection(connection);
-        case 'facebook':
-          return await this.testFacebookConnection(connection);
-        case 'linkedin':
-          return await this.testLinkedInConnection(connection);
-        default:
-          return { success: true }; // Default to success for demo
-      }
+      // Test the connection by fetching user profile
+      await this.getUserProfile(platform, connection.tokens);
+      return { success: true };
+
     } catch (error) {
       console.error(`Error testing ${platform} connection:`, error);
       return { 
@@ -104,7 +160,7 @@ export class SocialMediaService {
   static async postContent(post: SocialMediaPost): Promise<{ success: boolean; postId?: string; error?: string }> {
     try {
       const connection = this.getStoredConnection(post.platform);
-      if (!connection || !connection.isConnected) {
+      if (!connection || !connection.isConnected || !connection.tokens) {
         return { success: false, error: `${post.platform} is not connected` };
       }
 
@@ -114,18 +170,41 @@ export class SocialMediaService {
         return { success: false, error: validation.error };
       }
 
+      // Refresh token if needed
+      if (connection.tokens.expiresAt && new Date() > connection.tokens.expiresAt) {
+        if (connection.tokens.refreshToken && connection.clientId && connection.clientSecret) {
+          connection.tokens = await OAuthService.refreshAccessToken(
+            platform,
+            connection.tokens.refreshToken,
+            connection.clientId,
+            connection.clientSecret
+          );
+          this.saveConnection(post.platform, connection);
+        } else {
+          return { success: false, error: 'Access token expired and cannot be refreshed' };
+        }
+      }
+
       // Post to the specific platform
+      let result;
       switch (post.platform) {
         case 'twitter':
-          return await this.postToTwitter(post, connection);
-        case 'instagram':
-          return await this.postToInstagram(post, connection);
-        case 'facebook':
-          return await this.postToFacebook(post, connection);
+          result = await TwitterAPIService.postTweet(connection.tokens, {
+            text: post.content,
+            mediaIds: post.mediaUrls
+          });
+          return { success: true, postId: result.id };
+        
         case 'linkedin':
-          return await this.postToLinkedIn(post, connection);
+          result = await LinkedInAPIService.postUpdate(connection.tokens, {
+            text: post.content,
+            visibility: 'PUBLIC',
+            mediaUrls: post.mediaUrls
+          });
+          return { success: true, postId: result.id };
+        
         default:
-          // For now, open composer in browser as fallback
+          // For platforms not yet implemented, fall back to composer
           return this.openPlatformComposer(post);
       }
     } catch (error) {
@@ -135,69 +214,6 @@ export class SocialMediaService {
         error: error instanceof Error ? error.message : 'Failed to post content' 
       };
     }
-  }
-
-  private static async testTwitterConnection(connection: SocialMediaConnection): Promise<{ success: boolean; error?: string }> {
-    // Simulate Twitter API test call
-    try {
-      // In a real implementation, this would make an API call to Twitter
-      if (connection.accessToken) {
-        return { success: true };
-      }
-      return { success: false, error: 'Invalid Twitter credentials' };
-    } catch (error) {
-      return { success: false, error: 'Twitter connection failed' };
-    }
-  }
-
-  private static async testInstagramConnection(connection: SocialMediaConnection): Promise<{ success: boolean; error?: string }> {
-    try {
-      if (connection.accessToken) {
-        return { success: true };
-      }
-      return { success: false, error: 'Invalid Instagram credentials' };
-    } catch (error) {
-      return { success: false, error: 'Instagram connection failed' };
-    }
-  }
-
-  private static async testFacebookConnection(connection: SocialMediaConnection): Promise<{ success: boolean; error?: string }> {
-    try {
-      if (connection.accessToken) {
-        return { success: true };
-      }
-      return { success: false, error: 'Invalid Facebook credentials' };
-    } catch (error) {
-      return { success: false, error: 'Facebook connection failed' };
-    }
-  }
-
-  private static async testLinkedInConnection(connection: SocialMediaConnection): Promise<{ success: boolean; error?: string }> {
-    try {
-      if (connection.accessToken) {
-        return { success: true };
-      }
-      return { success: false, error: 'Invalid LinkedIn credentials' };
-    } catch (error) {
-      return { success: false, error: 'LinkedIn connection failed' };
-    }
-  }
-
-  private static async postToTwitter(post: SocialMediaPost, connection: SocialMediaConnection): Promise<{ success: boolean; postId?: string; error?: string }> {
-    // For now, use the composer approach until Twitter API is fully integrated
-    return this.openPlatformComposer(post);
-  }
-
-  private static async postToInstagram(post: SocialMediaPost, connection: SocialMediaConnection): Promise<{ success: boolean; postId?: string; error?: string }> {
-    return { success: false, error: 'Instagram direct posting requires media files and is not yet implemented' };
-  }
-
-  private static async postToFacebook(post: SocialMediaPost, connection: SocialMediaConnection): Promise<{ success: boolean; postId?: string; error?: string }> {
-    return this.openPlatformComposer(post);
-  }
-
-  private static async postToLinkedIn(post: SocialMediaPost, connection: SocialMediaConnection): Promise<{ success: boolean; postId?: string; error?: string }> {
-    return this.openPlatformComposer(post);
   }
 
   private static openPlatformComposer(post: SocialMediaPost): { success: boolean; postId?: string; error?: string } {
@@ -227,30 +243,42 @@ export class SocialMediaService {
   }
 
   private static validateContentForPlatform(content: string, platform: string): { isValid: boolean; error?: string } {
-    const limits = {
-      twitter: 280,
-      instagram: 2200,
-      facebook: 63206,
-      linkedin: 1300,
-      tiktok: 150,
-      youtube: 5000
-    };
-
-    const limit = limits[platform as keyof typeof limits];
-    if (limit && content.length > limit) {
-      return { 
-        isValid: false, 
-        error: `Content exceeds ${platform} character limit of ${limit}` 
-      };
+    switch (platform) {
+      case 'twitter':
+        const twitterValidation = TwitterAPIService.validateContentLength(content);
+        return {
+          isValid: twitterValidation.isValid,
+          error: twitterValidation.isValid ? undefined : `Content exceeds Twitter's ${twitterValidation.maxLength} character limit`
+        };
+      
+      case 'linkedin':
+        const linkedinValidation = LinkedInAPIService.validateContentLength(content);
+        return {
+          isValid: linkedinValidation.isValid,
+          error: linkedinValidation.isValid ? undefined : `Content exceeds LinkedIn's ${linkedinValidation.maxLength} character limit`
+        };
+      
+      default:
+        return { isValid: true };
     }
-
-    return { isValid: true };
   }
 
   static getStoredConnection(platform: string): SocialMediaConnection | null {
     try {
       const stored = localStorage.getItem(`social-connection-${platform}`);
-      return stored ? JSON.parse(stored) : null;
+      if (!stored) return null;
+      
+      const connection = JSON.parse(stored);
+      
+      // Parse dates
+      if (connection.tokens?.expiresAt) {
+        connection.tokens.expiresAt = new Date(connection.tokens.expiresAt);
+      }
+      if (connection.lastSync) {
+        connection.lastSync = new Date(connection.lastSync);
+      }
+      
+      return connection;
     } catch (error) {
       console.error(`Error loading ${platform} connection:`, error);
       return null;
@@ -282,16 +310,17 @@ export class SocialMediaService {
     );
   }
 
-  static async configureAPI(platform: string, config: any): Promise<{ success: boolean; error?: string }> {
+  static async configureAPI(platform: string, credentials: PlatformCredentials): Promise<{ success: boolean; error?: string }> {
     try {
       const connection = this.getStoredConnection(platform) || {
         platform,
         isConnected: false
       };
 
-      connection.apiConfig = config;
+      connection.clientId = credentials.clientId;
+      connection.clientSecret = credentials.clientSecret;
+      
       this.saveConnection(platform, connection);
-
       return { success: true };
     } catch (error) {
       return { 
