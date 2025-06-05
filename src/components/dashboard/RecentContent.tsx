@@ -1,8 +1,9 @@
+
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { FileText, Calendar, Eye, MoreHorizontal, Edit } from 'lucide-react';
+import { FileText, Calendar, Eye, Edit } from 'lucide-react';
 
 interface RecentContentProps {
   isMobile: boolean;
@@ -63,19 +64,23 @@ export const RecentContent = ({ isMobile, onTabChange }: RecentContentProps) => 
     console.log('Navigate to content library');
     if (onTabChange) {
       onTabChange('library');
-    } else {
-      // For now, keep them on dashboard since library doesn't exist yet
-      window.location.hash = 'dashboard';
     }
   };
 
-  const handleContentClick = (contentId: number) => {
+  const handleContentView = (contentId: number) => {
+    console.log('View content:', contentId);
+    // For now, navigate to library to view content
+    if (onTabChange) {
+      onTabChange('library');
+    }
+  };
+
+  const handleContentEdit = (contentId: number, e: React.MouseEvent) => {
+    e.stopPropagation();
     console.log('Edit content:', contentId);
-    // For now, navigate to content creation
+    // Navigate to content creation for editing
     if (onTabChange) {
       onTabChange('create');
-    } else {
-      window.location.hash = 'create';
     }
   };
 
@@ -95,7 +100,7 @@ export const RecentContent = ({ isMobile, onTabChange }: RecentContentProps) => 
             <div 
               key={content.id} 
               className="flex items-start gap-3 p-3 border rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
-              onClick={() => handleContentClick(content.id)}
+              onClick={() => handleContentView(content.id)}
             >
               <div className="flex-shrink-0">
                 <FileText className="h-4 w-4 text-gray-600 mt-1" />
@@ -133,10 +138,8 @@ export const RecentContent = ({ isMobile, onTabChange }: RecentContentProps) => 
                 variant="ghost" 
                 size="sm" 
                 className="h-6 w-6 p-0"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleContentClick(content.id);
-                }}
+                onClick={(e) => handleContentEdit(content.id, e)}
+                title="Edit content"
               >
                 <Edit className="h-3 w-3" />
               </Button>

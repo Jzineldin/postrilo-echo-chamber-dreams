@@ -14,9 +14,6 @@ export const DashboardCards = ({ isMobile, onTabChange }: DashboardCardsProps) =
     console.log('Navigate to content creation');
     if (onTabChange) {
       onTabChange('create');
-    } else {
-      // Fallback to hash navigation
-      window.location.hash = 'create';
     }
   };
 
@@ -24,9 +21,6 @@ export const DashboardCards = ({ isMobile, onTabChange }: DashboardCardsProps) =
     console.log('Navigate to content library');
     if (onTabChange) {
       onTabChange('library');
-    } else {
-      // Fallback to hash navigation - for now go to dashboard since library doesn't exist yet
-      window.location.hash = 'dashboard';
     }
   };
 
@@ -34,9 +28,6 @@ export const DashboardCards = ({ isMobile, onTabChange }: DashboardCardsProps) =
     console.log('Navigate to settings');
     if (onTabChange) {
       onTabChange('settings');
-    } else {
-      // Fallback to hash navigation
-      window.location.hash = 'settings';
     }
   };
 
@@ -44,28 +35,19 @@ export const DashboardCards = ({ isMobile, onTabChange }: DashboardCardsProps) =
     console.log('Navigate to content calendar/scheduler');
     if (onTabChange) {
       onTabChange('scheduler');
-    } else {
-      // Fallback to hash navigation
-      window.location.hash = 'scheduler';
     }
   };
 
   return (
     <div className={`grid gap-4 ${isMobile ? 'grid-cols-1' : 'md:grid-cols-2'}`}>
-      {/* Welcome Card */}
+      {/* Welcome Card - Removed duplicate Create Content button */}
       <Card className="dashboard-welcome bg-gradient-to-br from-purple-500 to-pink-500 text-white border-0">
         <CardHeader>
           <CardTitle className="text-xl">Welcome to Postrilo! 🚀</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="mb-4">Ready to create amazing content with AI assistance?</p>
-          <Button 
-            className="create-content-button bg-white text-purple-600 hover:bg-gray-100 font-semibold"
-            onClick={handleCreateContent}
-          >
-            <Wand2 className="w-4 h-4 mr-2" />
-            Create Content
-          </Button>
+          <p className="text-sm opacity-90">Use the "Create Content" button in the header to get started!</p>
         </CardContent>
       </Card>
 
