@@ -3,25 +3,51 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Wand2, BookOpen, Settings, TrendingUp, Users, Calendar } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 
 interface DashboardCardsProps {
   isMobile: boolean;
+  onTabChange?: (tab: string) => void;
 }
 
-export const DashboardCards = ({ isMobile }: DashboardCardsProps) => {
-  const navigate = useNavigate();
-
+export const DashboardCards = ({ isMobile, onTabChange }: DashboardCardsProps) => {
   const handleCreateContent = () => {
-    navigate('/create');
+    console.log('Navigate to content creation');
+    if (onTabChange) {
+      onTabChange('create');
+    } else {
+      // Fallback to hash navigation
+      window.location.hash = 'create';
+    }
   };
 
   const handleViewLibrary = () => {
-    navigate('/library');
+    console.log('Navigate to content library');
+    if (onTabChange) {
+      onTabChange('library');
+    } else {
+      // Fallback to hash navigation - for now go to dashboard since library doesn't exist yet
+      window.location.hash = 'dashboard';
+    }
   };
 
   const handleSettings = () => {
-    navigate('/settings');
+    console.log('Navigate to settings');
+    if (onTabChange) {
+      onTabChange('settings');
+    } else {
+      // Fallback to hash navigation
+      window.location.hash = 'settings';
+    }
+  };
+
+  const handleContentCalendar = () => {
+    console.log('Navigate to content calendar/scheduler');
+    if (onTabChange) {
+      onTabChange('scheduler');
+    } else {
+      // Fallback to hash navigation
+      window.location.hash = 'scheduler';
+    }
   };
 
   return (
@@ -107,6 +133,7 @@ export const DashboardCards = ({ isMobile }: DashboardCardsProps) => {
           <Button 
             variant="ghost" 
             className="w-full justify-start text-sm"
+            onClick={handleContentCalendar}
           >
             <Calendar className="w-4 h-4 mr-2" />
             Content Calendar

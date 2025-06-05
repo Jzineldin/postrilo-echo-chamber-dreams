@@ -1,15 +1,15 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { FileText, Calendar, Eye, MoreHorizontal } from 'lucide-react';
+import { FileText, Calendar, Eye, MoreHorizontal, Edit } from 'lucide-react';
 
 interface RecentContentProps {
   isMobile: boolean;
+  onTabChange?: (tab: string) => void;
 }
 
-export const RecentContent = ({ isMobile }: RecentContentProps) => {
+export const RecentContent = ({ isMobile, onTabChange }: RecentContentProps) => {
   const recentContent = [
     {
       id: 1,
@@ -59,12 +59,32 @@ export const RecentContent = ({ isMobile }: RecentContentProps) => {
     }
   };
 
+  const handleViewAll = () => {
+    console.log('Navigate to content library');
+    if (onTabChange) {
+      onTabChange('library');
+    } else {
+      // For now, keep them on dashboard since library doesn't exist yet
+      window.location.hash = 'dashboard';
+    }
+  };
+
+  const handleContentClick = (contentId: number) => {
+    console.log('Edit content:', contentId);
+    // For now, navigate to content creation
+    if (onTabChange) {
+      onTabChange('create');
+    } else {
+      window.location.hash = 'create';
+    }
+  };
+
   return (
     <Card>
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-sm font-medium">Recent Content</CardTitle>
-          <Button variant="ghost" size="sm" className="text-xs">
+          <Button variant="ghost" size="sm" className="text-xs" onClick={handleViewAll}>
             View All
           </Button>
         </div>
@@ -72,7 +92,11 @@ export const RecentContent = ({ isMobile }: RecentContentProps) => {
       <CardContent className="pt-0">
         <div className="space-y-3">
           {recentContent.map((content) => (
-            <div key={content.id} className="flex items-start gap-3 p-3 border rounded-lg hover:bg-gray-50 transition-colors">
+            <div 
+              key={content.id} 
+              className="flex items-start gap-3 p-3 border rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
+              onClick={() => handleContentClick(content.id)}
+            >
               <div className="flex-shrink-0">
                 <FileText className="h-4 w-4 text-gray-600 mt-1" />
               </div>
@@ -105,8 +129,16 @@ export const RecentContent = ({ isMobile }: RecentContentProps) => {
                 </div>
               </div>
               
-              <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                <MoreHorizontal className="h-3 w-3" />
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="h-6 w-6 p-0"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleContentClick(content.id);
+                }}
+              >
+                <Edit className="h-3 w-3" />
               </Button>
             </div>
           ))}

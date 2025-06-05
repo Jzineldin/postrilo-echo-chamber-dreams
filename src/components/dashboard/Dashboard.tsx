@@ -28,11 +28,11 @@ export const Dashboard = ({ onTabChange }: DashboardProps) => {
         
         <div className={`grid gap-6 ${isMobile ? 'grid-cols-1' : 'lg:grid-cols-3'}`}>
           <div className={isMobile ? 'space-y-6' : 'lg:col-span-2 space-y-6'}>
-            <DashboardCards isMobile={isMobile} />
+            <DashboardCards isMobile={isMobile} onTabChange={onTabChange} />
           </div>
           
           <div className="space-y-6">
-            <RecentContent isMobile={isMobile} />
+            <RecentContent isMobile={isMobile} onTabChange={onTabChange} />
           </div>
         </div>
 
