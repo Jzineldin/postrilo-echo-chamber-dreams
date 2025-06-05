@@ -22,8 +22,8 @@ export const useAppNavigation = () => {
           setActiveTab(hash);
         }
       } else {
-        // If no hash, default to home for unauthenticated users or dashboard for authenticated
-        setActiveTab(user ? "dashboard" : "home");
+        // If no hash, stay on home - don't auto-redirect authenticated users
+        setActiveTab("home");
       }
     };
 
@@ -31,7 +31,7 @@ export const useAppNavigation = () => {
     window.addEventListener('hashchange', handleHashChange);
     
     return () => window.removeEventListener('hashchange', handleHashChange);
-  }, [user]);
+  }, []); // Remove user dependency to prevent auto-redirect
 
   const handleAuth = () => {
     console.log("Auth handler called - navigating to auth page");
