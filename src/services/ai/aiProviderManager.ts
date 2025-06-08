@@ -39,6 +39,31 @@ interface SupabaseFunctionResponse {
   error: any;
 }
 
+const extractHashtags = (content: string): string[] => {
+  const hashtagRegex = /#\w+/g;
+  const matches = content.match(hashtagRegex);
+  return matches ? matches.slice(0, 10) : [];
+};
+
+const generateFallbackContent = (formData: any): string => {
+  // Safely access formData properties with fallbacks
+  const safeFormData = formData ?? {};
+  const platform = safeFormData.platform || 'default';
+  const topic = safeFormData.topic || 'your topic';
+  
+  const templates: Record<string, string> = {
+    instagram: `🌟 ${topic}\n\nDiscover something amazing today! ${topic} is more than just a trend - it's a lifestyle.\n\n✨ What makes it special:\n• Authentic experiences\n• Real connections\n• Meaningful moments\n\nWhat's your take on ${topic}? Share your thoughts below! 👇\n\n#${topic.replace(/\s+/g, '')} #inspiration #lifestyle`,
+    
+    twitter: `🧵 Thread about ${topic}:\n\n1/ ${topic} is changing the game. Here's why you should pay attention...\n\n2/ Three key things to know:\n✅ Point 1\n✅ Point 2\n✅ Point 3\n\n3/ The bottom line: ${topic} matters more than you think.\n\nWhat's your experience? Reply below! 👇`,
+    
+    linkedin: `Insights on ${topic}\n\nIn today's rapidly evolving landscape, ${topic} has emerged as a critical factor for success.\n\nKey takeaways:\n→ Strategic importance\n→ Implementation best practices\n→ Measurable outcomes\n\nWhat has been your experience with ${topic}? I'd love to hear your perspective in the comments.\n\n#${topic.replace(/\s+/g, '')} #professional #insights`,
+    
+    default: `Ready to explore ${topic}? \n\nFocus on these fundamentals:\n• Know your audience\n• Provide genuine value\n• Stay consistent\n• Engage authentically\n\nWhat's your next step with ${topic}?`
+  };
+
+  return templates[platform] || templates.default;
+};
+
 export const aiProviderManager = {
   generateContent: async (options: GenerateContentOptions, formData: any): Promise<GenerateContentResponse> => {
     try {
@@ -107,7 +132,7 @@ Make sure the content is ready to post and follows ${safeFormData.platform || 's
       
       return {
         content: content,
-        hashtags: this.extractHashtags(content),
+        hashtags: extractHashtags(content),
         fallbackUsed: false,
         usage: {
           promptTokens,
@@ -120,10 +145,10 @@ Make sure the content is ready to post and follows ${safeFormData.platform || 's
       
       // Provide fallback content with safe formData handling
       const safeFormData = formData ?? {};
-      const fallbackContent = this.generateFallbackContent(safeFormData);
+      const fallbackContent = generateFallbackContent(safeFormData);
       return {
         content: fallbackContent,
-        hashtags: this.extractHashtags(fallbackContent),
+        hashtags: extractHashtags(fallbackContent),
         fallbackUsed: true,
         usage: {
           promptTokens: 0,
@@ -132,31 +157,6 @@ Make sure the content is ready to post and follows ${safeFormData.platform || 's
         }
       };
     }
-  },
-
-  generateFallbackContent: (formData: any): string => {
-    // Safely access formData properties with fallbacks
-    const safeFormData = formData ?? {};
-    const platform = safeFormData.platform || 'default';
-    const topic = safeFormData.topic || 'your topic';
-    
-    const templates: Record<string, string> = {
-      instagram: `🌟 ${topic}\n\nDiscover something amazing today! ${topic} is more than just a trend - it's a lifestyle.\n\n✨ What makes it special:\n• Authentic experiences\n• Real connections\n• Meaningful moments\n\nWhat's your take on ${topic}? Share your thoughts below! 👇\n\n#${topic.replace(/\s+/g, '')} #inspiration #lifestyle`,
-      
-      twitter: `🧵 Thread about ${topic}:\n\n1/ ${topic} is changing the game. Here's why you should pay attention...\n\n2/ Three key things to know:\n✅ Point 1\n✅ Point 2\n✅ Point 3\n\n3/ The bottom line: ${topic} matters more than you think.\n\nWhat's your experience? Reply below! 👇`,
-      
-      linkedin: `Insights on ${topic}\n\nIn today's rapidly evolving landscape, ${topic} has emerged as a critical factor for success.\n\nKey takeaways:\n→ Strategic importance\n→ Implementation best practices\n→ Measurable outcomes\n\nWhat has been your experience with ${topic}? I'd love to hear your perspective in the comments.\n\n#${topic.replace(/\s+/g, '')} #professional #insights`,
-      
-      default: `Ready to explore ${topic}? \n\nFocus on these fundamentals:\n• Know your audience\n• Provide genuine value\n• Stay consistent\n• Engage authentically\n\nWhat's your next step with ${topic}?`
-    };
-
-    return templates[platform] || templates.default;
-  },
-
-  extractHashtags: (content: string): string[] => {
-    const hashtagRegex = /#\w+/g;
-    const matches = content.match(hashtagRegex);
-    return matches ? matches.slice(0, 10) : [];
   },
 
   initializeOpenAI: (apiKey: string) => {
