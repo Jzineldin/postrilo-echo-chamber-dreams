@@ -86,6 +86,11 @@ export const MultiStepContentGenerator = ({
     await generateEnhancedContent(enhancedFormData);
   };
 
+  const handleNext = () => {
+    nextStep();
+    return true;
+  };
+
   const renderCurrentStep = () => {
     switch (currentStep) {
       case 1:
@@ -93,7 +98,7 @@ export const MultiStepContentGenerator = ({
           <ContentTypeStep 
             formData={formData}
             updateFormData={updateFormData}
-            onNext={nextStep}
+            onNext={handleNext}
           />
         );
       case 2:
@@ -154,7 +159,7 @@ export const MultiStepContentGenerator = ({
         currentStep={currentStep}
         totalSteps={5}
         onPrevious={prevStep}
-        onNext={nextStep}
+        onNext={handleNext}
         isNextDisabled={!canProceedToNext()}
       />
     </div>

@@ -127,7 +127,10 @@ export const MultiStepContentGenerator = ({
           <ContentTypeStep
             formData={formData}
             updateFormData={updateFormData}
-            onNext={nextStep}
+            onNext={() => {
+              nextStep();
+              return true;
+            }}
           />
         );
       case 2:
@@ -169,6 +172,11 @@ export const MultiStepContentGenerator = ({
     }
   };
 
+  const handleNext = () => {
+    nextStep();
+    return true;
+  };
+
   return (
     <div className={`max-w-4xl mx-auto space-y-6 ${isMobile ? 'px-3 py-4' : 'px-4 py-8'}`}>
       <ProgressHeader 
@@ -183,7 +191,7 @@ export const MultiStepContentGenerator = ({
         currentStep={currentStep}
         totalSteps={totalSteps}
         onPrevious={prevStep}
-        onNext={nextStep}
+        onNext={handleNext}
         isNextDisabled={!canProceedToNext()}
       />
     </div>
