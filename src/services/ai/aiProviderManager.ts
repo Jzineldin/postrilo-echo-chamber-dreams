@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 
 interface GenerateContentOptions {
@@ -71,14 +70,20 @@ Make sure the content is ready to post and follows ${formData.platform} best pra
 
       console.log('✅ AIProviderManager: Content generated successfully');
       
+      // Safely extract usage data with explicit checks
+      const usage = data?.usage;
+      const promptTokens = usage?.promptTokens ?? 0;
+      const completionTokens = usage?.completionTokens ?? 0;
+      const totalTokens = usage?.totalTokens ?? 0;
+      
       return {
         content: content,
         hashtags: this.extractHashtags(content),
         fallbackUsed: false,
         usage: {
-          promptTokens: (data && data.usage && data.usage.promptTokens) || 0,
-          completionTokens: (data && data.usage && data.usage.completionTokens) || 0,
-          totalTokens: (data && data.usage && data.usage.totalTokens) || 0
+          promptTokens,
+          completionTokens,
+          totalTokens
         }
       };
     } catch (error) {
