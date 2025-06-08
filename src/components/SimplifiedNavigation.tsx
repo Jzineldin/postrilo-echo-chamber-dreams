@@ -1,16 +1,15 @@
 
 import React from "react";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Loader2 } from "lucide-react";
+import { ResponsiveButton } from "@/components/ui/ResponsiveButton";
 import { 
   Home, 
   Wand2, 
   Archive,
   Settings, 
-  CreditCard,
   Crown
 } from "lucide-react";
+import { useMobileNavigation } from "@/hooks/useMobileNavigation";
 
 interface SimplifiedNavigationProps {
   activeTab: string;
@@ -18,7 +17,6 @@ interface SimplifiedNavigationProps {
   onLogout: () => void;
   user: any;
   isPro?: boolean;
-  isNavigating?: boolean;
 }
 
 // Core features only
@@ -34,13 +32,36 @@ export const SimplifiedNavigation = ({
   onTabChange, 
   onLogout, 
   user,
-  isPro = false,
-  isNavigating = false
+  isPro = false
 }: SimplifiedNavigationProps) => {
   
+  const { 
+    isMobile, 
+    isNavigating, 
+    navigateWithMobileOptimizations 
+  } = useMobileNavigation();
+
   const handleTabClick = (tab: string) => {
-    if (isNavigating) return; // Prevent clicks during navigation
+    console.log('Tab clicked:', tab, 'Current:', activeTab);
+    
+    // Prevent navigation to same tab
+    if (activeTab === tab) {
+      console.log('Already on tab:', tab);
+      return;
+    }
+    
     onTabChange(tab);
+  };
+
+  const handleUpgradeClick = () => {
+    navigateWithMobileOptimizations('/pricing');
+    onTabChange('pricing');
+  };
+
+  const handleLogoutClick = () => {
+    if (!isNavigating) {
+      onLogout();
+    }
   };
 
   return (
@@ -65,40 +86,38 @@ export const SimplifiedNavigation = ({
           {coreNavigationItems.map((item) => {
             const isActive = activeTab === item.id;
             return (
-              <Button
+              <ResponsiveButton
                 key={item.id}
                 variant={isActive ? "default" : "ghost"}
-                size="sm"
+                size={isMobile ? "default" : "sm"}
                 onClick={() => handleTabClick(item.id)}
-                disabled={isNavigating}
-                className="flex items-center space-x-2 relative group disabled:opacity-50"
-                title={item.description}
+                disabled={isNavigating && !isActive}
+                loading={isNavigating && isActive}
+                icon={item.icon}
+                className="flex items-center space-x-2 relative group"
+                aria-label={item.description}
               >
-                {isNavigating && isActive ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <item.icon className="w-4 h-4" />
-                )}
                 <span className="hidden md:inline">{item.label}</span>
                 {isActive && (
                   <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-purple-600 rounded-full" />
                 )}
-              </Button>
+              </ResponsiveButton>
             );
           })}
           
           {/* Secondary Actions */}
           {!isPro && (
-            <Button
+            <ResponsiveButton
               variant="outline"
-              size="sm"
-              onClick={() => handleTabClick('pricing')}
+              size={isMobile ? "default" : "sm"}
+              onClick={handleUpgradeClick}
               disabled={isNavigating}
-              className="bg-gradient-to-r from-purple-600 to-pink-600 text-white border-0 hover:from-purple-700 hover:to-pink-700 disabled:opacity-50"
+              icon={Crown}
+              className="bg-gradient-to-r from-purple-600 to-pink-600 text-white border-0 hover:from-purple-700 hover:to-pink-700"
+              aria-label="Upgrade to Pro plan"
             >
-              <Crown className="w-4 h-4 mr-1" />
               <span className="hidden md:inline">Upgrade</span>
-            </Button>
+            </ResponsiveButton>
           )}
         </div>
 
@@ -108,19 +127,17 @@ export const SimplifiedNavigation = ({
             <span className="text-sm text-gray-600 hidden lg:inline">
               {user.email?.split('@')[0]}
             </span>
-            <Button 
+            <ResponsiveButton 
               variant="ghost" 
-              size="sm" 
-              onClick={onLogout}
+              size={isMobile ? "default" : "sm"}
+              onClick={handleLogoutClick}
               disabled={isNavigating}
-              className="text-gray-600 hover:text-gray-800 disabled:opacity-50"
+              loading={isNavigating && activeTab === 'logout'}
+              className="text-gray-600 hover:text-gray-800"
+              aria-label="Sign out of your account"
             >
-              {isNavigating ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                "Sign Out"
-              )}
-            </Button>
+              Sign Out
+            </ResponsiveButton>
           </div>
         )}
       </div>

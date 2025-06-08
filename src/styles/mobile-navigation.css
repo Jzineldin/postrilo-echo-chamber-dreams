@@ -1,0 +1,152 @@
+
+/* Enhanced Mobile Navigation Styles */
+
+/* Improved touch targets and responsiveness */
+.mobile-nav-enhanced {
+  /* Ensure minimum touch target size */
+  min-height: 48px;
+  min-width: 48px;
+  
+  /* Optimize touch interactions */
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: rgba(139, 92, 246, 0.1);
+  
+  /* Smooth transitions */
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Enhanced button press feedback */
+.mobile-nav-enhanced:active {
+  transform: scale(0.98);
+  background-color: rgba(139, 92, 246, 0.05);
+}
+
+/* Improved loading states */
+.navigation-loading {
+  pointer-events: none;
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.navigation-loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 16px;
+  height: 16px;
+  margin: -8px 0 0 -8px;
+  border: 2px solid #8b5cf6;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Enhanced mobile menu animations */
+.mobile-menu-enter {
+  transform: translateX(-100%);
+  opacity: 0;
+}
+
+.mobile-menu-enter-active {
+  transform: translateX(0);
+  opacity: 1;
+  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mobile-menu-exit {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.mobile-menu-exit-active {
+  transform: translateX(-100%);
+  opacity: 0;
+  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Smooth page transitions */
+.page-transition-enter {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.page-transition-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: all 200ms ease-out;
+}
+
+.page-transition-exit {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.page-transition-exit-active {
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: all 150ms ease-in;
+}
+
+/* Enhanced focus states for accessibility */
+.mobile-nav-enhanced:focus-visible {
+  outline: 2px solid #8b5cf6;
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+/* Prevent text selection on navigation elements */
+.mobile-nav-enhanced {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Improved contrast for better visibility */
+.mobile-nav-text {
+  color: #374151;
+  font-weight: 500;
+}
+
+.mobile-nav-text-active {
+  color: #111827;
+  font-weight: 600;
+}
+
+/* Safe area support for modern devices */
+.mobile-nav-safe-area {
+  padding-top: max(0.5rem, env(safe-area-inset-top));
+  padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+  padding-left: max(1rem, env(safe-area-inset-left));
+  padding-right: max(1rem, env(safe-area-inset-right));
+}
+
+/* Gesture-friendly swipe areas */
+.swipe-area {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 8px;
+}
+
+/* Optimized animations for mobile performance */
+@media (max-width: 768px) {
+  .mobile-nav-enhanced {
+    will-change: transform, opacity;
+    backface-visibility: hidden;
+  }
+  
+  /* Reduce motion for better battery life */
+  @media (prefers-reduced-motion: reduce) {
+    .mobile-nav-enhanced {
+      transition-duration: 0.01ms !important;
+      animation-duration: 0.01ms !important;
+    }
+  }
+}

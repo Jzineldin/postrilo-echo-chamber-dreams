@@ -3,38 +3,51 @@ import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { useResponsiveNavigation } from "./useResponsiveNavigation";
 
 export const useAppNavigation = () => {
   const [activeTab, setActiveTab] = useState("home");
-  const [isNavigating, setIsNavigating] = useState(false);
   const { user, signOut, loading } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
+  
+  const { 
+    navigateWithDebounce, 
+    isNavigating: isResponsiveNavigating,
+    cancelNavigation 
+  } = useResponsiveNavigation({
+    debounceMs: 250,
+    enableHapticFeedback: true
+  });
 
-  console.log("App navigation state:", { activeTab, user: !!user, loading, currentPath: location.pathname });
+  console.log("App navigation state:", { 
+    activeTab, 
+    user: !!user, 
+    loading, 
+    currentPath: location.pathname,
+    isNavigating: isResponsiveNavigating
+  });
 
   // Clean up any hash-based URLs on mount
   useEffect(() => {
     const currentUrl = window.location.href;
     if (currentUrl.includes('/#') && !currentUrl.includes('#/')) {
-      // Extract the hash part and convert to proper route
       const hashPart = window.location.hash.replace('#', '');
       if (hashPart && hashPart !== '') {
         console.log("Cleaning up hash-based URL:", hashPart);
         window.history.replaceState(null, '', `/${hashPart}`);
-        navigate(`/${hashPart}`, { replace: true });
+        navigateWithDebounce(`/${hashPart}`);
         return;
       }
     }
-  }, [navigate]);
+  }, [navigateWithDebounce]);
 
   // Handle route-based navigation
   useEffect(() => {
     const pathname = location.pathname;
     console.log("Route changed to:", pathname);
     
-    // Map routes to tabs
     const routeToTab = {
       '/': 'home',
       '/dashboard': 'dashboard',
@@ -51,30 +64,26 @@ export const useAppNavigation = () => {
 
     const tab = routeToTab[pathname] || 'home';
     setActiveTab(tab);
-    setIsNavigating(false); // Clear loading state when navigation completes
   }, [location.pathname]);
 
   const handleAuth = () => {
     console.log("Auth handler called - navigating to auth page");
-    setIsNavigating(true);
     setActiveTab("auth");
-    navigate('/auth');
+    navigateWithDebounce('/auth');
   };
 
   const handleAuthSuccess = () => {
     console.log("Auth success - navigating to dashboard");
-    setIsNavigating(true);
     setActiveTab("dashboard");
-    navigate('/dashboard');
+    navigateWithDebounce('/dashboard');
   };
 
   const handleLogout = async () => {
     try {
       console.log("Logging out user");
-      setIsNavigating(true);
       await signOut();
       setActiveTab("home");
-      navigate('/');
+      navigateWithDebounce('/');
       toast({
         title: "Logged Out",
         description: "You have been successfully logged out.",
@@ -86,8 +95,6 @@ export const useAppNavigation = () => {
         description: "There was an error logging you out. Please try again.",
         variant: "destructive"
       });
-    } finally {
-      setIsNavigating(false);
     }
   };
 
@@ -95,7 +102,8 @@ export const useAppNavigation = () => {
     console.log("Tab change requested:", { from: activeTab, to: newTab });
     
     // Prevent duplicate navigation
-    if (isNavigating || activeTab === newTab) {
+    if (isResponsiveNavigating || activeTab === newTab) {
+      console.log("Navigation blocked - already navigating or same tab");
       return;
     }
     
@@ -104,9 +112,8 @@ export const useAppNavigation = () => {
     
     if (protectedTabs.includes(newTab) && !user) {
       console.log("Protected tab requested without auth, redirecting to auth");
-      setIsNavigating(true);
       setActiveTab("auth");
-      navigate('/auth');
+      navigateWithDebounce('/auth');
       toast({
         title: "Authentication Required",
         description: "Please log in to access this feature.",
@@ -115,10 +122,8 @@ export const useAppNavigation = () => {
     }
     
     console.log("Changing tab to:", newTab);
-    setIsNavigating(true);
     setActiveTab(newTab);
     
-    // Navigate to proper route
     const tabToRoute = {
       'home': '/',
       'dashboard': '/dashboard',
@@ -134,17 +139,18 @@ export const useAppNavigation = () => {
     };
 
     const route = tabToRoute[newTab] || '/';
-    navigate(route);
+    navigateWithDebounce(route);
   };
 
   return {
     activeTab,
     user,
     loading,
-    isNavigating,
+    isNavigating: isResponsiveNavigating,
     handleAuth,
     handleAuthSuccess,
     handleLogout,
-    handleTabChange
+    handleTabChange,
+    cancelNavigation
   };
 };
