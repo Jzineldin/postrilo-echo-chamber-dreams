@@ -1,11 +1,10 @@
-
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { ArrowLeft } from "lucide-react";
 import { useMultiStepForm } from "./content-generator/multi-step/hooks/useMultiStepForm";
-import { useContentGeneration } from "./content-generator/multi-step/hooks/useContentGeneration";
+import { useEnhancedContentGeneration } from "./enhanced-content-generator/hooks/useEnhancedContentGeneration";
 import { ContentTypeStep } from "./content-generator/steps/ContentTypeStep";
 import { TopicPlatformStep } from "./content-generator/steps/TopicPlatformStep";
 import { StyleGoalStep } from "./content-generator/steps/StyleGoalStep";
@@ -15,6 +14,7 @@ import { ProgressHeader } from "./content-generator/multi-step/ProgressHeader";
 import { StepNavigation } from "./content-generator/multi-step/StepNavigation";
 import { MobileContentGenerator } from "./mobile/MobileContentGenerator";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useToast } from "@/hooks/use-toast";
 
 interface MultiStepContentGeneratorProps {
   canGenerateMore: boolean;
@@ -30,6 +30,7 @@ export const MultiStepContentGenerator = ({
   initialTemplate
 }: MultiStepContentGeneratorProps) => {
   const isMobile = useIsMobile();
+  const { toast } = useToast();
   
   const {
     currentStep,
@@ -42,22 +43,55 @@ export const MultiStepContentGenerator = ({
     canProceedToNext
   } = useMultiStepForm();
 
-  const {
-    generatedContent,
-    suggestedHashtags,
-    isGenerating,
-    handleGenerate
-  } = useContentGeneration();
+  const onContentGenerated = (content: any) => {
+    console.log('Content generated successfully:', content);
+    toast({
+      title: "Content Generated!",
+      description: `Successfully generated ${content.contentType} for ${content.platform}`,
+    });
+  };
+
+  const onGenerationError = (error: any) => {
+    console.error('Content generation error:', error);
+    toast({
+      title: "Generation Failed",
+      description: error.userFriendlyMessage || "Failed to generate content. Please try again.",
+      variant: "destructive"
+    });
+  };
+
+  const { isGenerating, generateEnhancedContent } = useEnhancedContentGeneration(
+    onContentGenerated,
+    onGenerationError
+  );
 
   const totalSteps = 5;
 
   const onGenerate = async () => {
     if (!canGenerateMore) {
-      alert(`You've reached your monthly limit of posts. You have ${postsRemaining} posts remaining.`);
+      toast({
+        title: "Post limit reached",
+        description: `You've reached your monthly limit. You have ${postsRemaining} posts remaining.`,
+        variant: "destructive"
+      });
       return;
     }
 
-    await handleGenerate(formData, canGenerateMore);
+    // Convert form data to enhanced generator format
+    const enhancedFormData = {
+      topic: formData.topic,
+      platform: formData.platforms[0] || formData.platform || 'instagram',
+      goal: formData.goal,
+      tone: formData.tone,
+      contentType: formData.contentType,
+      keyPoints: formData.keyPoints?.join(', ') || '',
+      emojiUsage: formData.includeEmojis || false,
+      hashtagDensity: formData.includeHashtags || false,
+      shortSentences: true,
+      useCache: true
+    };
+
+    await generateEnhancedContent(enhancedFormData);
   };
 
   const onMobileContentGenerated = (content: any) => {
@@ -119,8 +153,8 @@ export const MultiStepContentGenerator = ({
         return (
           <ReviewGenerateStep
             formData={formData}
-            generatedContent={generatedContent}
-            generatedHashtags={suggestedHashtags}
+            generatedContent=""
+            generatedHashtags={[]}
             isGenerating={isGenerating}
             canGenerateMore={canGenerateMore}
             onGenerate={onGenerate}

@@ -14,8 +14,9 @@ import { ReviewGenerateStep } from "./steps/ReviewGenerateStep";
 import { ProgressHeader } from "./multi-step/ProgressHeader";
 import { StepNavigation } from "./multi-step/StepNavigation";
 import { useMultiStepForm } from "./multi-step/hooks/useMultiStepForm";
-import { useContentGeneration } from "./multi-step/hooks/useContentGeneration";
+import { useEnhancedContentGeneration } from "../enhanced-content-generator/hooks/useEnhancedContentGeneration";
 import { MultiStepContentGeneratorProps } from "./multi-step/types";
+import { useToast } from "@/hooks/use-toast";
 
 export const MultiStepContentGenerator = ({ 
   canGenerateMore, 
@@ -23,6 +24,7 @@ export const MultiStepContentGenerator = ({
   initialTemplate 
 }: MultiStepContentGeneratorProps) => {
   const isMobile = useIsMobile();
+  const { toast } = useToast();
   
   const {
     currentStep,
@@ -34,15 +36,53 @@ export const MultiStepContentGenerator = ({
     canProceedToNext
   } = useMultiStepForm();
 
-  const {
-    generatedContent,
-    suggestedHashtags,
-    isGenerating,
-    handleGenerate
-  } = useContentGeneration();
+  const onContentGenerated = (content: any) => {
+    console.log('Content generated successfully:', content);
+    toast({
+      title: "Content Generated!",
+      description: `Successfully generated ${content.contentType} for ${content.platform}`,
+    });
+  };
 
-  const onGenerate = () => {
-    handleGenerate(formData, canGenerateMore);
+  const onGenerationError = (error: any) => {
+    console.error('Content generation error:', error);
+    toast({
+      title: "Generation Failed",
+      description: error.userFriendlyMessage || "Failed to generate content. Please try again.",
+      variant: "destructive"
+    });
+  };
+
+  const { isGenerating, generateEnhancedContent } = useEnhancedContentGeneration(
+    onContentGenerated,
+    onGenerationError
+  );
+
+  const onGenerate = async () => {
+    if (!canGenerateMore) {
+      toast({
+        title: "Post limit reached",
+        description: `You've reached your monthly limit. You have ${postsRemaining} posts remaining.`,
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Convert form data to enhanced generator format
+    const enhancedFormData = {
+      topic: formData.topic,
+      platform: formData.platforms[0] || formData.platform || 'instagram',
+      goal: formData.goal,
+      tone: formData.tone,
+      contentType: formData.contentType,
+      keyPoints: formData.keyPoints?.join(', ') || '',
+      emojiUsage: formData.includeEmojis || false,
+      hashtagDensity: formData.includeHashtags || false,
+      shortSentences: true,
+      useCache: true
+    };
+
+    await generateEnhancedContent(enhancedFormData);
   };
 
   const renderCurrentStep = () => {
@@ -80,8 +120,8 @@ export const MultiStepContentGenerator = ({
         return (
           <ReviewGenerateStep 
             formData={formData}
-            generatedContent={generatedContent}
-            generatedHashtags={suggestedHashtags}
+            generatedContent=""
+            generatedHashtags={[]}
             isGenerating={isGenerating}
             onGenerate={onGenerate}
             canGenerateMore={canGenerateMore}
