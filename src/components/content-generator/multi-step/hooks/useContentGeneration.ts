@@ -1,35 +1,68 @@
 
-import { useState } from "react";
-import { useToast } from "@/hooks/use-toast";
-import { centralizedAIService } from "@/services/centralizedAIService";
-import { EnhancedPromptService } from "@/services/ai/enhancedPromptService";
-import { ContentQualityService } from "@/services/ai/contentQualityService";
-import { ContentLanguageService } from "@/services/ai/contentLanguageService";
-import { EngagingPromptService } from "@/services/ai/engagingPromptService";
-import { useContentValidation } from "@/hooks/useContentValidation";
-import { FormData } from "../types";
+import { useState, useCallback } from 'react';
+import { FormData } from '../types';
+import { useToast } from '@/hooks/use-toast';
+
+interface GeneratedContent {
+  content: string;
+  hashtags: string[];
+  platform: string;
+}
 
 export const useContentGeneration = () => {
-  const [generatedContent, setGeneratedContent] = useState("");
+  const [generatedContent, setGeneratedContent] = useState<string>('');
   const [suggestedHashtags, setSuggestedHashtags] = useState<string[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const { toast } = useToast();
-  const { shouldRetryGeneration, evaluateRetryImprovement } = useContentValidation();
 
-  const handleGenerate = async (formData: FormData, canGenerateMore: boolean) => {
-    if (!canGenerateMore) {
+  const generateMockContent = useCallback((formData: FormData): GeneratedContent => {
+    const platform = formData.platforms[0] || 'instagram';
+    
+    // Mock content generation based on form data
+    const contentTemplates = {
+      'post': `🌟 Let's talk about ${formData.topic}!
+
+${formData.keyPoints.length > 0 ? formData.keyPoints.map((point, index) => `${index + 1}. ${point}`).join('\n') : 'Here are some key insights about this topic...'}
+
+What are your thoughts? Let me know in the comments! 👇
+
+#${formData.topic.replace(/\s+/g, '')} #SocialMedia`,
+      
+      'video-script': `[INTRO]
+Hey everyone! Today we're diving into ${formData.topic}.
+
+[MAIN CONTENT]
+${formData.keyPoints.length > 0 ? formData.keyPoints.map(point => `- ${point}`).join('\n') : 'Key points about this topic...'}
+
+[OUTRO]
+Thanks for watching! Don't forget to like and subscribe!`,
+      
+      'story': `Quick story about ${formData.topic}! 📱
+
+${formData.keyPoints.length > 0 ? formData.keyPoints[0] : 'Something interesting happened...'}`
+    };
+
+    const hashtagTemplates = {
+      'instagram': ['#instagram', '#content', '#socialmedia', '#marketing'],
+      'twitter': ['#twitter', '#tweet', '#socialmedia'],
+      'linkedin': ['#linkedin', '#professional', '#business'],
+      'facebook': ['#facebook', '#social', '#community'],
+      'tiktok': ['#tiktok', '#viral', '#trending'],
+      'youtube': ['#youtube', '#video', '#creator']
+    };
+
+    return {
+      content: contentTemplates[formData.contentType as keyof typeof contentTemplates] || contentTemplates['post'],
+      hashtags: hashtagTemplates[platform as keyof typeof hashtagTemplates] || hashtagTemplates['instagram'],
+      platform
+    };
+  }, []);
+
+  const handleGenerate = useCallback(async (formData: FormData, canGenerate: boolean) => {
+    if (!canGenerate) {
       toast({
         title: "Generation Limit Reached",
-        description: "You've reached your monthly post limit.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    if (!formData.topic?.trim()) {
-      toast({
-        title: "Missing Topic",
-        description: "Please provide a topic for your content.",
+        description: "You've reached your monthly generation limit.",
         variant: "destructive"
       });
       return;
@@ -38,98 +71,28 @@ export const useContentGeneration = () => {
     setIsGenerating(true);
     
     try {
-      // Create engaging prompt
-      const engagingPrompt = EngagingPromptService.createEngagingPrompt(formData);
+      // Simulate API call delay
+      await new Promise(resolve => setTimeout(resolve, 2000));
       
-      console.log('🎯 Enhanced Engaging Prompt:', engagingPrompt);
+      const result = generateMockContent(formData);
+      setGeneratedContent(result.content);
+      setSuggestedHashtags(result.hashtags);
       
-      const response = await centralizedAIService.generateContent({
-        prompt: engagingPrompt,
-        type: formData.contentType === 'video-script' ? 'video-script' : 'content',
-        temperature: formData.tone === 'humorous' ? 0.8 : 0.7,
-        maxTokens: formData.contentType === 'video-script' ? 1000 : 800,
-        platforms: [formData.platform]
-      });
-
-      if (response.error && !response.content) {
-        throw new Error(response.error);
-      }
-
-      let content = response.content;
-      
-      // Clean up content
-      content = ContentLanguageService.cleanGeneratedContent(content, formData.language);
-      
-      // Quality check
-      const qualityCheck = ContentQualityService.evaluateContent(
-        content, 
-        formData.platform, 
-        formData.language
-      );
-      
-      console.log('📊 Content Quality Analysis:', {
-        score: qualityCheck.score,
-        issues: qualityCheck.issues,
-        language: formData.language
-      });
-      
-      // Retry if needed
-      if (shouldRetryGeneration(content, formData, qualityCheck.score)) {
-        console.log('🔄 Quality issue detected, attempting refined prompt...');
-        
-        const refinedPrompt = EngagingPromptService.createRefinedRetryPrompt(formData);
-        
-        const retryResponse = await centralizedAIService.generateContent({
-          prompt: refinedPrompt,
-          type: formData.contentType === 'video-script' ? 'video-script' : 'content',
-          temperature: formData.tone === 'humorous' ? 0.9 : 0.8,
-          maxTokens: formData.contentType === 'video-script' ? 1000 : 800,
-          platforms: [formData.platform]
-        });
-        
-        if (retryResponse.content) {
-          const cleanedRetryContent = ContentLanguageService.cleanGeneratedContent(
-            retryResponse.content, 
-            formData.language
-          );
-          
-          const improvement = evaluateRetryImprovement(content, cleanedRetryContent, formData);
-          
-          if (improvement.useRetry) {
-            content = cleanedRetryContent;
-            console.log('✅', improvement.reason);
-          }
-        }
-      }
-
-      setGeneratedContent(content);
-
-      // Generate hashtags
-      if (formData.platform !== 'linkedin') {
-        const hashtags = EnhancedPromptService.generateSmartHashtags(
-          content, 
-          formData.platform, 
-          formData.language
-        );
-        setSuggestedHashtags(hashtags);
-      }
-
       toast({
         title: "Content Generated!",
-        description: `Engaging content created for ${formData.platform} in ${formData.language}`,
+        description: `Successfully generated content for ${result.platform}`,
       });
-
     } catch (error) {
       console.error('Content generation error:', error);
       toast({
         title: "Generation Failed",
-        description: error instanceof Error ? error.message : "Please try again.",
+        description: "There was an error generating your content. Please try again.",
         variant: "destructive"
       });
     } finally {
       setIsGenerating(false);
     }
-  };
+  }, [generateMockContent, toast]);
 
   return {
     generatedContent,
