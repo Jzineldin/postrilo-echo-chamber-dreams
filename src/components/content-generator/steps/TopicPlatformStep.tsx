@@ -4,16 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft } from "lucide-react";
 import { FormData } from "../multi-step/types";
 
 interface TopicPlatformStepProps {
   formData: FormData;
   updateFormData: (updates: Partial<FormData>) => void;
-  onBack?: () => void;
 }
 
-export const TopicPlatformStep = ({ formData, updateFormData, onBack }: TopicPlatformStepProps) => {
+export const TopicPlatformStep = ({ formData, updateFormData }: TopicPlatformStepProps) => {
   const platforms = [
     { id: "twitter", name: "Twitter/X", icon: "𝕏", description: "280 chars, trending topics" },
     { id: "instagram", name: "Instagram", icon: "📷", description: "Visual content, hashtags" },
@@ -32,31 +30,10 @@ export const TopicPlatformStep = ({ formData, updateFormData, onBack }: TopicPla
     updateFormData({ platform: platformId });
   };
 
-  const handleBackToDashboard = () => {
-    if (onBack) {
-      onBack();
-    } else {
-      // Fallback navigation
-      window.location.hash = 'dashboard';
-    }
-  };
-
   const isFormValid = formData.topic?.trim() && formData.platform;
 
   return (
     <div className="space-y-6">
-      {/* Back Navigation */}
-      <div className="flex items-center justify-between">
-        <Button
-          variant="ghost"
-          onClick={handleBackToDashboard}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back to Dashboard
-        </Button>
-      </div>
-
       <div className="text-center space-y-2">
         <h2 className="text-2xl font-bold">Tell us about your content</h2>
         <p className="text-gray-600">What topic would you like to create content about?</p>

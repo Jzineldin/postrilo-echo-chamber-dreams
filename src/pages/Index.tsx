@@ -14,6 +14,7 @@ import { BrandVoiceManager } from "@/components/BrandVoiceManager";
 import { ContentScheduler } from "@/components/ContentScheduler";
 import { SettingsPanel } from "@/components/SettingsPanel";
 import { ContentGeneratorErrorBoundary } from "@/components/error/ContentGeneratorErrorBoundary";
+import { UniversalHeader } from "@/components/navigation/UniversalHeader";
 
 const Index = () => {
   const { isInitialized, isLoading, error } = useAppInitializer();
@@ -64,7 +65,6 @@ const Index = () => {
     if (user) {
       handleTabChange("create");
     } else {
-      // Show demo mode for non-authenticated users
       handleTabChange("demo");
     }
   };
@@ -80,6 +80,10 @@ const Index = () => {
     } else {
       handleAuth();
     }
+  };
+
+  const handleBackToDashboard = () => {
+    handleTabChange("dashboard");
   };
 
   // Render based on active tab
@@ -122,14 +126,36 @@ const Index = () => {
         handleAuth();
         return <AppLoading />;
       }
-      return <BrandVoiceManager />;
+      return (
+        <div className="min-h-screen bg-gray-50">
+          <UniversalHeader 
+            title="Brand Voice Manager"
+            currentPage="Define and manage your brand's voice and tone"
+            onBack={handleBackToDashboard}
+          />
+          <div className="max-w-7xl mx-auto px-4 py-6">
+            <BrandVoiceManager />
+          </div>
+        </div>
+      );
     
     case "scheduler":
       if (!user) {
         handleAuth();
         return <AppLoading />;
       }
-      return <ContentScheduler />;
+      return (
+        <div className="min-h-screen bg-gray-50">
+          <UniversalHeader 
+            title="Content Scheduler"
+            currentPage="Schedule and manage your content posts"
+            onBack={handleBackToDashboard}
+          />
+          <div className="max-w-7xl mx-auto px-4 py-6">
+            <ContentScheduler />
+          </div>
+        </div>
+      );
     
     case "settings":
       if (!user) {
@@ -139,10 +165,32 @@ const Index = () => {
       return <SettingsPanel />;
     
     case "pricing":
-      return <PricingPage onSelectPlan={handleSelectPlan} />;
+      return (
+        <div className="min-h-screen bg-gray-50">
+          <UniversalHeader 
+            title="Pricing Plans"
+            currentPage="Choose the perfect plan for your needs"
+            onBack={handleBackToHome}
+          />
+          <div className="max-w-7xl mx-auto px-4 py-6">
+            <PricingPage onSelectPlan={handleSelectPlan} />
+          </div>
+        </div>
+      );
     
     case "help":
-      return <HelpSupportPage />;
+      return (
+        <div className="min-h-screen bg-gray-50">
+          <UniversalHeader 
+            title="Help & Support"
+            currentPage="Get help and find answers to common questions"
+            onBack={user ? handleBackToDashboard : handleBackToHome}
+          />
+          <div className="max-w-7xl mx-auto px-4 py-6">
+            <HelpSupportPage />
+          </div>
+        </div>
+      );
     
     default:
       return (

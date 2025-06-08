@@ -38,7 +38,7 @@ export const AppLayout = ({
               onTabChange={onTabChange}
               onLogout={onLogout}
               user={user}
-              isPro={false} // TODO: Connect to subscription status
+              isPro={false}
             />
           )}
           

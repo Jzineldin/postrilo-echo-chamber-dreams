@@ -2,6 +2,7 @@
 import React from "react";
 import { MultiStepContentGenerator } from "./MultiStepContentGenerator";
 import { useSubscription } from "@/hooks/useSubscription";
+import { UniversalHeader } from "./navigation/UniversalHeader";
 
 const ContentGenerator = () => {
   console.log("ContentGenerator: Loading MultiStepContentGenerator");
@@ -9,13 +10,25 @@ const ContentGenerator = () => {
   const { postsUsedThisMonth, monthlyPostsLimit } = useSubscription();
   const postsRemaining = Math.max(0, monthlyPostsLimit - postsUsedThisMonth);
   const canGenerateMore = postsRemaining > 0;
+
+  const handleBack = () => {
+    window.location.hash = 'dashboard';
+  };
   
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-purple-100">
-      <MultiStepContentGenerator 
-        canGenerateMore={canGenerateMore}
-        postsRemaining={postsRemaining}
+      <UniversalHeader 
+        title="Create Content"
+        currentPage="Generate social media content tailored to your brand"
+        onBack={handleBack}
       />
+      <div className="pt-4">
+        <MultiStepContentGenerator 
+          canGenerateMore={canGenerateMore}
+          postsRemaining={postsRemaining}
+          onBack={handleBack}
+        />
+      </div>
     </div>
   );
 };

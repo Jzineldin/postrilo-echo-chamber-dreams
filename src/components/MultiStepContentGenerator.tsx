@@ -57,7 +57,6 @@ export const MultiStepContentGenerator = ({
   };
 
   const onMobileContentGenerated = (content: any) => {
-    // Handle mobile content generation
     console.log('Mobile content generated:', content);
   };
 
@@ -65,29 +64,10 @@ export const MultiStepContentGenerator = ({
     console.error('Mobile generation error:', error);
   };
 
-  const handleBackToDashboard = () => {
-    if (onBack) {
-      onBack();
-    } else {
-      // Fallback navigation
-      window.location.hash = 'dashboard';
-    }
-  };
-
   // Use mobile component for mobile devices
   if (isMobile) {
     return (
       <div className="px-3 py-4">
-        <div className="mb-4">
-          <Button
-            variant="ghost"
-            onClick={handleBackToDashboard}
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back to Dashboard
-          </Button>
-        </div>
         <MobileContentGenerator
           onContentGenerated={onMobileContentGenerated}
           onGenerationError={onMobileGenerationError}
@@ -115,7 +95,6 @@ export const MultiStepContentGenerator = ({
           <TopicPlatformStep
             formData={formData}
             updateFormData={updateFormData}
-            onBack={handleBackToDashboard}
           />
         );
       case 3:
@@ -151,19 +130,7 @@ export const MultiStepContentGenerator = ({
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      {/* Back to Dashboard Button */}
-      <div className="flex items-center justify-between">
-        <Button
-          variant="ghost"
-          onClick={handleBackToDashboard}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back to Dashboard
-        </Button>
-      </div>
-
+    <div className={`max-w-4xl mx-auto space-y-6 ${isMobile ? 'px-3 py-4' : 'px-4 py-8'}`}>
       <ProgressHeader 
         currentStep={currentStep}
         postsRemaining={postsRemaining}
