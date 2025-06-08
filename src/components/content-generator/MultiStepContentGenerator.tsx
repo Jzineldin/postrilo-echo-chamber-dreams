@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -26,6 +26,8 @@ export const MultiStepContentGenerator = ({
 }: MultiStepContentGeneratorProps) => {
   const isMobile = useIsMobile();
   const { toast } = useToast();
+  const [generatedContent, setGeneratedContent] = useState<string>("");
+  const [generatedHashtags, setGeneratedHashtags] = useState<string[]>([]);
   
   const {
     currentStep,
@@ -39,6 +41,8 @@ export const MultiStepContentGenerator = ({
 
   const onContentGenerated = (content: any) => {
     console.log('Content generated successfully:', content);
+    setGeneratedContent(content.content);
+    setGeneratedHashtags(content.hashtags || []);
     toast({
       title: "Content Generated!",
       description: `Successfully generated ${content.contentType} for ${content.platform}`,
@@ -126,8 +130,8 @@ export const MultiStepContentGenerator = ({
         return (
           <ReviewGenerateStep 
             formData={formData}
-            generatedContent=""
-            generatedHashtags={[]}
+            generatedContent={generatedContent}
+            generatedHashtags={generatedHashtags}
             isGenerating={isGenerating}
             onGenerate={onGenerate}
             canGenerateMore={canGenerateMore}
