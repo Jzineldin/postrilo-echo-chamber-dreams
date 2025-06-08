@@ -76,9 +76,9 @@ Make sure the content is ready to post and follows ${formData.platform} best pra
         hashtags: this.extractHashtags(content),
         fallbackUsed: false,
         usage: {
-          promptTokens: data?.usage?.promptTokens || 0,
-          completionTokens: data?.usage?.completionTokens || 0,
-          totalTokens: data?.usage?.totalTokens || 0
+          promptTokens: (data && data.usage && data.usage.promptTokens) || 0,
+          completionTokens: (data && data.usage && data.usage.completionTokens) || 0,
+          totalTokens: (data && data.usage && data.usage.totalTokens) || 0
         }
       };
     } catch (error) {
