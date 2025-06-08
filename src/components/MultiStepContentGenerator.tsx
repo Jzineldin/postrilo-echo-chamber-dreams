@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,6 +16,7 @@ import { StepNavigation } from "./content-generator/multi-step/StepNavigation";
 import { MobileContentGenerator } from "./mobile/MobileContentGenerator";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useToast } from "@/hooks/use-toast";
+import { FormData as EnhancedFormData } from "@/components/enhanced-content-generator/types";
 
 interface MultiStepContentGeneratorProps {
   canGenerateMore: boolean;
@@ -77,13 +79,13 @@ export const MultiStepContentGenerator = ({
       return;
     }
 
-    // Convert form data to enhanced generator format
-    const enhancedFormData = {
+    // Convert form data to enhanced generator format with proper typing
+    const enhancedFormData: EnhancedFormData = {
       topic: formData.topic,
-      platform: formData.platforms[0] || formData.platform || 'instagram',
-      goal: formData.goal,
-      tone: formData.tone,
-      contentType: formData.contentType,
+      platform: (formData.platforms[0] || formData.platform || 'instagram') as 'instagram' | 'twitter' | 'linkedin' | 'facebook' | 'tiktok' | 'youtube',
+      goal: (formData.goal || 'engagement') as 'engagement' | 'brand-awareness' | 'lead-generation' | 'promotion',
+      tone: (formData.tone || 'professional') as 'professional' | 'casual' | 'humorous' | 'inspirational' | 'educational',
+      contentType: (formData.contentType || 'post') as 'post' | 'video-script' | 'story' | 'reel' | 'carousel' | 'thread',
       keyPoints: formData.keyPoints?.join(', ') || '',
       emojiUsage: formData.includeEmojis || false,
       hashtagDensity: formData.includeHashtags || false,

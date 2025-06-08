@@ -17,6 +17,7 @@ import { useMultiStepForm } from "./multi-step/hooks/useMultiStepForm";
 import { useEnhancedContentGeneration } from "../enhanced-content-generator/hooks/useEnhancedContentGeneration";
 import { MultiStepContentGeneratorProps } from "./multi-step/types";
 import { useToast } from "@/hooks/use-toast";
+import { FormData as EnhancedFormData } from "@/components/enhanced-content-generator/types";
 
 export const MultiStepContentGenerator = ({ 
   canGenerateMore, 
@@ -68,13 +69,13 @@ export const MultiStepContentGenerator = ({
       return;
     }
 
-    // Convert form data to enhanced generator format
-    const enhancedFormData = {
+    // Convert form data to enhanced generator format with proper typing
+    const enhancedFormData: EnhancedFormData = {
       topic: formData.topic,
-      platform: formData.platforms[0] || formData.platform || 'instagram',
-      goal: formData.goal,
-      tone: formData.tone,
-      contentType: formData.contentType,
+      platform: (formData.platforms[0] || formData.platform || 'instagram') as 'instagram' | 'twitter' | 'linkedin' | 'facebook' | 'tiktok' | 'youtube',
+      goal: (formData.goal || 'engagement') as 'engagement' | 'brand-awareness' | 'lead-generation' | 'promotion',
+      tone: (formData.tone || 'professional') as 'professional' | 'casual' | 'humorous' | 'inspirational' | 'educational',
+      contentType: (formData.contentType || 'post') as 'post' | 'video-script' | 'story' | 'reel' | 'carousel' | 'thread',
       keyPoints: formData.keyPoints?.join(', ') || '',
       emojiUsage: formData.includeEmojis || false,
       hashtagDensity: formData.includeHashtags || false,
