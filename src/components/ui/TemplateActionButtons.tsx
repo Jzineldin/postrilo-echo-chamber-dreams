@@ -118,7 +118,7 @@ export const TemplateActionButtons = ({
             )}
             aria-label={isFavorited ? "Remove from favorites" : "Add to favorites"}
           >
-            {/* Empty children for icon-only button */}
+            {/* Empty content for icon-only button */}
           </ResponsiveButton>
         )}
       </div>
@@ -163,7 +163,7 @@ export const TemplateActionButtons = ({
                     className="p-1"
                     aria-label="Copy preview content"
                   >
-                    {/* Empty children for icon-only button */}
+                    {/* Empty content for icon-only button */}
                   </ResponsiveButton>
                 </div>
                 

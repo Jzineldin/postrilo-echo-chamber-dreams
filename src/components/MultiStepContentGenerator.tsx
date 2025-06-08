@@ -111,7 +111,7 @@ export const MultiStepContentGenerator = ({
       case 4:
         return (
           <KeyPointsStep
-            formData={formData}
+            formData={{ ...formData, bulletPoints: formData.bulletPoints || [] }}
             updateFormData={updateFormData}
           />
         );
