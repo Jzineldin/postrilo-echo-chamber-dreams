@@ -33,11 +33,23 @@ interface MultiProviderAIResponse {
   };
 }
 
-// Define interface for the Supabase function response
+// Define interface for the Supabase function response with better typing
 interface SupabaseFunctionResponse {
   data: MultiProviderAIResponse | null;
-  error: any;
+  error: {
+    message?: string;
+  } | null;
 }
+
+// Type guard to check if response has valid data
+const hasValidResponseData = (response: SupabaseFunctionResponse): response is SupabaseFunctionResponse & { data: MultiProviderAIResponse } => {
+  return response.data !== null && response.data !== undefined;
+};
+
+// Type guard to check if data has content
+const hasValidContent = (data: MultiProviderAIResponse): data is MultiProviderAIResponse & { content: string } => {
+  return typeof data.content === 'string' && data.content.trim().length > 0;
+};
 
 const extractHashtags = (content: string): string[] => {
   const hashtagRegex = /#\w+/g;
@@ -91,44 +103,49 @@ Requirements:
 
 Make sure the content is ready to post and follows ${safeFormData.platform || 'social media'} best practices.`;
 
-      const response: SupabaseFunctionResponse = await supabase.functions.invoke('multi-provider-ai', {
+      const response = await supabase.functions.invoke('multi-provider-ai', {
         body: {
           prompt: enhancedPrompt,
           preferredProvider: 'gemini',
           type: 'content'
         }
-      });
+      }) as SupabaseFunctionResponse;
 
+      // Early return for Supabase function errors
       if (response.error) {
+        const errorMessage = response.error.message || 'Failed to generate content';
         console.error('Supabase function error:', response.error);
-        throw new Error(response.error.message || 'Failed to generate content');
+        throw new Error(errorMessage);
       }
 
-      // Type the response data properly with explicit null check
-      const responseData = response.data;
-      
-      if (!responseData) {
+      // Use type guard to ensure we have valid data
+      if (!hasValidResponseData(response)) {
         throw new Error('No response data received');
       }
+
+      // Now TypeScript knows response.data is not null
+      const responseData = response.data;
 
       if (responseData.error) {
         console.error('Multi-provider AI service error:', responseData.error);
         throw new Error(responseData.error);
       }
 
-      // Safely extract content with proper validation
-      const content = responseData.content ?? '';
-      if (!content || content.trim().length === 0) {
+      // Use type guard to check for valid content
+      if (!hasValidContent(responseData)) {
         throw new Error('No content was generated');
       }
 
       console.log('✅ AIProviderManager: Content generated successfully');
       
-      // Safely extract usage data with explicit null checks and fallbacks
-      const usage = responseData.usage ?? {};
-      const promptTokens = usage.promptTokens ?? 0;
-      const completionTokens = usage.completionTokens ?? 0;
-      const totalTokens = usage.totalTokens ?? 0;
+      // TypeScript now knows responseData.content is a string
+      const content = responseData.content;
+      
+      // Safely extract usage data with explicit fallbacks
+      const usage = responseData.usage || {};
+      const promptTokens = usage.promptTokens || 0;
+      const completionTokens = usage.completionTokens || 0;
+      const totalTokens = usage.totalTokens || 0;
       
       return {
         content: content,
