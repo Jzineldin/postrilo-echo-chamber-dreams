@@ -16,6 +16,7 @@ import { SettingsPanel } from "@/components/SettingsPanel";
 import { ContentLibrary } from "@/components/ContentLibrary";
 import { ContentGeneratorErrorBoundary } from "@/components/error/ContentGeneratorErrorBoundary";
 import { UniversalHeader } from "@/components/navigation/UniversalHeader";
+import { BreadcrumbNavigation } from "@/components/navigation/BreadcrumbNavigation";
 
 const Index = () => {
   const { isInitialized, isLoading, error } = useAppInitializer();
@@ -23,6 +24,7 @@ const Index = () => {
     activeTab, 
     user, 
     loading: authLoading, 
+    isNavigating,
     handleAuth, 
     handleAuthSuccess, 
     handleLogout, 
@@ -30,7 +32,7 @@ const Index = () => {
   } = useAppNavigation();
 
   // Show loading while initializing or authenticating
-  if (isLoading || authLoading || !isInitialized) {
+  if (isLoading || authLoading || !isInitialized || isNavigating) {
     return <AppLoading />;
   }
 
@@ -122,6 +124,7 @@ const Index = () => {
       }
       return (
         <div className="min-h-screen bg-gray-50">
+          <BreadcrumbNavigation />
           <UniversalHeader 
             title="Content Library"
             currentPage="Manage all your saved content in one place"
@@ -145,6 +148,7 @@ const Index = () => {
       }
       return (
         <div className="min-h-screen bg-gray-50">
+          <BreadcrumbNavigation />
           <UniversalHeader 
             title="Brand Voice Manager"
             currentPage="Define and manage your brand's voice and tone"
@@ -163,6 +167,7 @@ const Index = () => {
       }
       return (
         <div className="min-h-screen bg-gray-50">
+          <BreadcrumbNavigation />
           <UniversalHeader 
             title="Content Scheduler"
             currentPage="Schedule and manage your content posts"
@@ -184,6 +189,7 @@ const Index = () => {
     case "pricing":
       return (
         <div className="min-h-screen bg-gray-50">
+          <BreadcrumbNavigation />
           <UniversalHeader 
             title="Pricing Plans"
             currentPage="Choose the perfect plan for your needs"
@@ -198,6 +204,7 @@ const Index = () => {
     case "help":
       return (
         <div className="min-h-screen bg-gray-50">
+          <BreadcrumbNavigation />
           <UniversalHeader 
             title="Help & Support"
             currentPage="Get help and find answers to common questions"

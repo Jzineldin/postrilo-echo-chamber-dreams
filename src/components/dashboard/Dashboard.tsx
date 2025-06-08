@@ -7,6 +7,7 @@ import { DashboardCards } from './DashboardCards';
 import { RecentContent } from './RecentContent';
 import { OnboardingTour } from '../onboarding/OnboardingTour';
 import { OnboardingModal } from '../onboarding/OnboardingModal';
+import { BreadcrumbNavigation } from '../navigation/BreadcrumbNavigation';
 
 interface DashboardProps {
   onTabChange?: (tab: string) => void;
@@ -23,6 +24,8 @@ export const Dashboard = ({ onTabChange }: DashboardProps) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-purple-100">
+      <BreadcrumbNavigation />
+      
       <div className="container mx-auto px-4 py-6 space-y-6">
         <DashboardHeader onTabChange={onTabChange} />
         

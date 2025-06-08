@@ -2,6 +2,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Loader2 } from "lucide-react";
 import { 
   Home, 
   Wand2, 
@@ -17,6 +18,7 @@ interface SimplifiedNavigationProps {
   onLogout: () => void;
   user: any;
   isPro?: boolean;
+  isNavigating?: boolean;
 }
 
 // Core features only
@@ -27,18 +29,20 @@ const coreNavigationItems = [
   { id: 'settings', label: 'Settings', icon: Settings, description: 'Account & preferences' },
 ];
 
-// Secondary features (available in dropdown)
-const secondaryItems = [
-  { id: 'pricing', label: 'Upgrade', icon: CreditCard },
-];
-
 export const SimplifiedNavigation = ({ 
   activeTab, 
   onTabChange, 
   onLogout, 
   user,
-  isPro = false 
+  isPro = false,
+  isNavigating = false
 }: SimplifiedNavigationProps) => {
+  
+  const handleTabClick = (tab: string) => {
+    if (isNavigating) return; // Prevent clicks during navigation
+    onTabChange(tab);
+  };
+
   return (
     <nav className="bg-white/90 backdrop-blur-sm border border-white/20 rounded-xl p-2">
       <div className="flex items-center justify-between">
@@ -58,27 +62,39 @@ export const SimplifiedNavigation = ({
         
         {/* Core Navigation */}
         <div className="flex items-center space-x-1">
-          {coreNavigationItems.map((item) => (
-            <Button
-              key={item.id}
-              variant={activeTab === item.id ? "default" : "ghost"}
-              size="sm"
-              onClick={() => onTabChange(item.id)}
-              className="flex items-center space-x-2 relative group"
-              title={item.description}
-            >
-              <item.icon className="w-4 h-4" />
-              <span className="hidden md:inline">{item.label}</span>
-            </Button>
-          ))}
+          {coreNavigationItems.map((item) => {
+            const isActive = activeTab === item.id;
+            return (
+              <Button
+                key={item.id}
+                variant={isActive ? "default" : "ghost"}
+                size="sm"
+                onClick={() => handleTabClick(item.id)}
+                disabled={isNavigating}
+                className="flex items-center space-x-2 relative group disabled:opacity-50"
+                title={item.description}
+              >
+                {isNavigating && isActive ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <item.icon className="w-4 h-4" />
+                )}
+                <span className="hidden md:inline">{item.label}</span>
+                {isActive && (
+                  <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-purple-600 rounded-full" />
+                )}
+              </Button>
+            );
+          })}
           
           {/* Secondary Actions */}
           {!isPro && (
             <Button
               variant="outline"
               size="sm"
-              onClick={() => onTabChange('pricing')}
-              className="bg-gradient-to-r from-purple-600 to-pink-600 text-white border-0 hover:from-purple-700 hover:to-pink-700"
+              onClick={() => handleTabClick('pricing')}
+              disabled={isNavigating}
+              className="bg-gradient-to-r from-purple-600 to-pink-600 text-white border-0 hover:from-purple-700 hover:to-pink-700 disabled:opacity-50"
             >
               <Crown className="w-4 h-4 mr-1" />
               <span className="hidden md:inline">Upgrade</span>
@@ -96,9 +112,14 @@ export const SimplifiedNavigation = ({
               variant="ghost" 
               size="sm" 
               onClick={onLogout}
-              className="text-gray-600 hover:text-gray-800"
+              disabled={isNavigating}
+              className="text-gray-600 hover:text-gray-800 disabled:opacity-50"
             >
-              Sign Out
+              {isNavigating ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                "Sign Out"
+              )}
             </Button>
           </div>
         )}

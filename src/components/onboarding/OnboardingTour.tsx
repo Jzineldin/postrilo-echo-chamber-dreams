@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArrowRight, ArrowLeft, Check, X } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
 
 interface OnboardingTourProps {
   isVisible: boolean;
@@ -44,16 +45,25 @@ const tourSteps = [
 
 export const OnboardingTour = ({ isVisible, onComplete, onSkip }: OnboardingTourProps) => {
   const [currentStep, setCurrentStep] = useState(0);
+  const location = useLocation();
 
-  // Auto-dismiss tour on navigation or route changes
+  // Auto-dismiss tour on navigation changes
+  useEffect(() => {
+    if (isVisible && location.pathname !== '/dashboard') {
+      console.log("Dismissing onboarding tour due to navigation change");
+      onSkip();
+    }
+  }, [location.pathname, isVisible, onSkip]);
+
+  // Auto-dismiss tour on route changes via popstate
   useEffect(() => {
     const handleNavigation = () => {
       if (isVisible) {
-        onSkip(); // Dismiss tour if user navigates
+        console.log("Dismissing onboarding tour due to browser navigation");
+        onSkip();
       }
     };
 
-    // Listen for navigation events
     window.addEventListener('popstate', handleNavigation);
     
     return () => {
@@ -80,9 +90,9 @@ export const OnboardingTour = ({ isVisible, onComplete, onSkip }: OnboardingTour
   const currentTourStep = tourSteps[currentStep];
 
   return (
-    <div className="fixed inset-0 bg-black/20 z-40 flex items-center justify-center p-4 pointer-events-none">
+    <div className="fixed inset-0 bg-black/20 z-[100] flex items-center justify-center p-4 pointer-events-none">
       <div className="pointer-events-auto">
-        <Card className="max-w-sm w-full bg-white border-purple-200 shadow-lg">
+        <Card className="max-w-sm w-full bg-white border-purple-200 shadow-xl">
           <CardContent className="p-6">
             <div className="flex justify-between items-start mb-4">
               <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">

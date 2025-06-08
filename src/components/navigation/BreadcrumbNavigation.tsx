@@ -1,91 +1,79 @@
 
-import React from 'react'
-import { ChevronRight, Home } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { 
-  Breadcrumb, 
-  BreadcrumbItem, 
-  BreadcrumbLink, 
-  BreadcrumbList, 
-  BreadcrumbPage, 
-  BreadcrumbSeparator 
-} from '@/components/ui/breadcrumb'
+import React from 'react';
+import { useLocation, Link } from 'react-router-dom';
+import {
+  Breadcrumb,
+  BreadcrumbEllipsis,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import { Home, ChevronRight } from 'lucide-react';
 
-interface BreadcrumbItem {
-  label: string
-  href?: string
-  current?: boolean
-}
+const routeLabels = {
+  '/': 'Home',
+  '/dashboard': 'Dashboard',
+  '/create': 'Create Content',
+  '/library': 'Content Library',
+  '/analytics': 'Analytics',
+  '/brand-voice': 'Brand Voice',
+  '/scheduler': 'Scheduler',
+  '/settings': 'Settings',
+  '/pricing': 'Pricing',
+  '/help': 'Help & Support',
+  '/auth': 'Authentication'
+};
 
-interface BreadcrumbNavigationProps {
-  items: BreadcrumbItem[]
-  onNavigate?: (href: string) => void
-  showHome?: boolean
-  className?: string
-}
+export const BreadcrumbNavigation = () => {
+  const location = useLocation();
+  const pathSegments = location.pathname.split('/').filter(segment => segment !== '');
+  
+  // Don't show breadcrumbs on home page or auth page
+  if (location.pathname === '/' || location.pathname === '/auth') {
+    return null;
+  }
 
-export const BreadcrumbNavigation = ({
-  items,
-  onNavigate,
-  showHome = true,
-  className = ''
-}: BreadcrumbNavigationProps) => {
-  const handleClick = (href: string) => {
-    if (onNavigate) {
-      onNavigate(href)
-    }
+  const breadcrumbItems = [
+    { path: '/dashboard', label: 'Dashboard' }
+  ];
+
+  // Add current page if it's not dashboard
+  if (location.pathname !== '/dashboard') {
+    const currentLabel = routeLabels[location.pathname] || 'Page';
+    breadcrumbItems.push({ path: location.pathname, label: currentLabel });
   }
 
   return (
-    <Breadcrumb className={className}>
-      <BreadcrumbList>
-        {showHome && (
-          <>
+    <div className="bg-white/80 backdrop-blur-sm border-b border-gray-100 px-4 py-2">
+      <div className="max-w-7xl mx-auto">
+        <Breadcrumb>
+          <BreadcrumbList>
             <BreadcrumbItem>
               <BreadcrumbLink asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleClick('/')}
-                  className="h-auto p-1"
-                >
+                <Link to="/dashboard" className="flex items-center gap-1 text-gray-600 hover:text-gray-900">
                   <Home className="w-4 h-4" />
-                </Button>
+                  Dashboard
+                </Link>
               </BreadcrumbLink>
             </BreadcrumbItem>
-            <BreadcrumbSeparator>
-              <ChevronRight className="w-4 h-4" />
-            </BreadcrumbSeparator>
-          </>
-        )}
-        
-        {items.map((item, index) => (
-          <React.Fragment key={index}>
-            <BreadcrumbItem>
-              {item.current ? (
-                <BreadcrumbPage>{item.label}</BreadcrumbPage>
-              ) : (
-                <BreadcrumbLink asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => item.href && handleClick(item.href)}
-                    className="h-auto p-1 text-gray-600 hover:text-gray-900"
-                  >
-                    {item.label}
-                  </Button>
-                </BreadcrumbLink>
-              )}
-            </BreadcrumbItem>
             
-            {index < items.length - 1 && (
-              <BreadcrumbSeparator>
-                <ChevronRight className="w-4 h-4" />
-              </BreadcrumbSeparator>
+            {breadcrumbItems.length > 1 && (
+              <>
+                <BreadcrumbSeparator>
+                  <ChevronRight className="w-4 h-4" />
+                </BreadcrumbSeparator>
+                <BreadcrumbItem>
+                  <BreadcrumbPage className="text-gray-900 font-medium">
+                    {breadcrumbItems[breadcrumbItems.length - 1].label}
+                  </BreadcrumbPage>
+                </BreadcrumbItem>
+              </>
             )}
-          </React.Fragment>
-        ))}
-      </BreadcrumbList>
-    </Breadcrumb>
-  )
-}
+          </BreadcrumbList>
+        </Breadcrumb>
+      </div>
+    </div>
+  );
+};
