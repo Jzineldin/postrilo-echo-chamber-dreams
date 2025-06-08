@@ -7,7 +7,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { TemplateActionButtons } from "@/components/ui/TemplateActionButtons";
 import { enhancedTemplateService } from "@/services/ai/enhancedTemplateService";
+import { useTemplateService, TemplateData } from "@/services/templateService";
 import { Sparkles, Video, MessageSquare, Image, Zap } from "lucide-react";
 
 interface EnhancedTemplateSelectorProps {
@@ -24,6 +26,8 @@ export const EnhancedTemplateSelector = ({
   const [selectedCategory, setSelectedCategory] = useState('engagement');
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const [templateVariables, setTemplateVariables] = useState<Record<string, string>>({});
+  
+  const { useTemplate } = useTemplateService();
 
   const categories = enhancedTemplateService.getCategories();
   const templates = enhancedTemplateService.getTemplatesByCategory(selectedCategory);
@@ -42,10 +46,29 @@ export const EnhancedTemplateSelector = ({
     setTemplateVariables(prev => ({ ...prev, [variable]: value }));
   };
 
-  const handleUseTemplate = () => {
-    if (selectedTemplate) {
+  const handleUseEnhancedTemplate = () => {
+    if (selectedTemplate && selectedTemplateData) {
       onTemplateSelect(selectedTemplate, templateVariables);
     }
+  };
+
+  const handleQuickUseTemplate = (template: any) => {
+    // Convert enhanced template to TemplateData format
+    const templateData: TemplateData = {
+      id: template.id,
+      name: template.name,
+      description: template.description,
+      category: template.category,
+      platforms: template.platforms,
+      variables: template.variables,
+      exampleContent: enhancedTemplateService.interpolateTemplate(template, {
+        topic: 'your topic',
+        tone: 'professional',
+        platform: selectedPlatforms[0] || 'instagram'
+      })
+    };
+    
+    useTemplate(templateData);
   };
 
   const getContentTypeIcon = (contentType: string) => {
@@ -110,7 +133,7 @@ export const EnhancedTemplateSelector = ({
                         onClick={() => setSelectedTemplate(template.id)}
                       >
                         <CardContent className="p-4">
-                          <div className="flex items-start justify-between">
+                          <div className="flex items-start justify-between mb-3">
                             <div className="flex items-center gap-3">
                               <Icon className="w-5 h-5 text-gray-600" />
                               <div>
@@ -127,14 +150,34 @@ export const EnhancedTemplateSelector = ({
                               </Badge>
                             </div>
                           </div>
-                          <div className="mt-3">
+                          
+                          <div className="flex items-center justify-between">
                             <div className="flex gap-1 flex-wrap">
-                              {template.platforms.map(platform => (
+                              {template.platforms.slice(0, 3).map(platform => (
                                 <Badge key={platform} variant="secondary" className="text-xs">
                                   {platform}
                                 </Badge>
                               ))}
                             </div>
+                            
+                            <TemplateActionButtons
+                              template={{
+                                id: template.id,
+                                name: template.name,
+                                description: template.description,
+                                category: template.category,
+                                platforms: template.platforms,
+                                variables: template.variables,
+                                exampleContent: enhancedTemplateService.interpolateTemplate(template, {
+                                  topic: 'your topic',
+                                  tone: 'professional',
+                                  platform: selectedPlatforms[0] || 'instagram'
+                                })
+                              }}
+                              variant="compact"
+                              showFavorite={false}
+                              onUseTemplate={() => handleQuickUseTemplate(template)}
+                            />
                           </div>
                         </CardContent>
                       </Card>
@@ -204,7 +247,7 @@ export const EnhancedTemplateSelector = ({
               ))}
 
               <Button 
-                onClick={handleUseTemplate}
+                onClick={handleUseEnhancedTemplate}
                 className="w-full"
                 disabled={!selectedTemplateData.variables.every(variable => 
                   templateVariables[variable]?.trim() || 

@@ -1,17 +1,43 @@
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { MultiStepContentGenerator } from "./MultiStepContentGenerator";
 import { useSubscription } from "@/hooks/useSubscription";
 import { UniversalHeader } from "./navigation/UniversalHeader";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
 const ContentGenerator = () => {
   console.log("ContentGenerator: Loading MultiStepContentGenerator");
   
   const { postsUsedThisMonth, monthlyPostsLimit } = useSubscription();
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const [templateData, setTemplateData] = useState<any>(null);
   const postsRemaining = Math.max(0, monthlyPostsLimit - postsUsedThisMonth);
   const canGenerateMore = postsRemaining > 0;
+
+  // Check for template data from navigation
+  useEffect(() => {
+    const storedTemplate = sessionStorage.getItem('selectedTemplate');
+    if (storedTemplate) {
+      try {
+        const template = JSON.parse(storedTemplate);
+        setTemplateData(template);
+        
+        // Show success message
+        toast({
+          title: "Template Loaded",
+          description: `Using "${template.templateName}" template for content creation.`,
+        });
+        
+        // Clear from session storage after use
+        sessionStorage.removeItem('selectedTemplate');
+      } catch (error) {
+        console.error('Error parsing template data:', error);
+        sessionStorage.removeItem('selectedTemplate');
+      }
+    }
+  }, [toast]);
 
   const handleBack = () => {
     navigate('/dashboard');
@@ -29,6 +55,7 @@ const ContentGenerator = () => {
           canGenerateMore={canGenerateMore}
           postsRemaining={postsRemaining}
           onBack={handleBack}
+          initialTemplate={templateData}
         />
       </div>
     </div>

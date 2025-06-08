@@ -1,9 +1,10 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { TemplateActionButtons } from "@/components/ui/TemplateActionButtons";
 import { ArrowRight, Instagram, Twitter, Linkedin, Facebook, Video, FileText, Lightbulb, Rocket, Users, Star } from "lucide-react";
+import { TemplateData } from "@/services/templateService";
 
 interface TemplateGalleryProps {
   onGetStarted: () => void;
@@ -13,84 +14,61 @@ export const TemplateGallery = ({ onGetStarted }: TemplateGalleryProps) => {
   const [selectedCategory, setSelectedCategory] = useState('all');
 
   const templateCategories = [
-    { id: 'all', name: 'All Templates', count: 12 },
-    { id: 'social-media', name: 'Social Media', count: 6 },
-    { id: 'video', name: 'Video Scripts', count: 3 },
-    { id: 'educational', name: 'Educational', count: 3 }
+    { id: 'all', name: 'All Templates', count: 6 },
+    { id: 'social-media', name: 'Social Media', count: 4 },
+    { id: 'video', name: 'Video Scripts', count: 1 },
+    { id: 'educational', name: 'Educational', count: 1 }
   ];
 
-  const templates = [
+  const templates: TemplateData[] = [
     {
-      id: 1,
+      id: 'product-launch',
       name: 'Product Launch Announcement',
       category: 'social-media',
       description: 'Create buzz for your new product with platform-optimized launch posts',
       platforms: ['instagram', 'twitter', 'linkedin', 'facebook'],
       variables: ['product_name', 'key_features', 'launch_date', 'call_to_action'],
-      exampleContent: '🚀 Introducing [Product Name] - the game-changer you\'ve been waiting for!\n\n✨ Key Features:\n• [Feature 1]\n• [Feature 2]\n• [Feature 3]\n\nAvailable [Launch Date]. Get ready to transform your [industry]!\n\n#ProductLaunch #Innovation',
-      icon: Rocket,
+      exampleContent: {
+        instagram: '🚀 Introducing [Product Name] - the game-changer you\'ve been waiting for!\n\n✨ Key Features:\n• [Feature 1]\n• [Feature 2]\n• [Feature 3]\n\nAvailable [Launch Date]. Get ready to transform your [industry]!\n\n#ProductLaunch #Innovation #NewProduct',
+        twitter: '🚀 BIG NEWS: [Product Name] is here!\n\n✨ What makes it special:\n• [Feature 1]\n• [Feature 2] \n• [Feature 3]\n\nLaunching [Launch Date] 🗓️\n\n#ProductLaunch #Innovation',
+        linkedin: '🚀 Excited to announce the launch of [Product Name]!\n\nAfter months of development, we\'re thrilled to introduce a solution that addresses [key problem]. Here\'s what makes it special:\n\n✨ [Feature 1]\n✨ [Feature 2]\n✨ [Feature 3]\n\nAvailable [Launch Date]. Ready to revolutionize your [industry]?\n\n#ProductLaunch #Innovation #Business'
+      },
+      icon: '🚀',
       color: 'from-blue-500 to-purple-600',
-      popularity: 95
+      popularity: 95,
+      rating: 4.8,
+      uses: 1250,
+      features: ['Hook generation', 'Feature highlights', 'CTA optimization']
     },
     {
-      id: 2,
+      id: 'educational-tutorial',
       name: 'Educational Tutorial',
       category: 'educational',
       description: 'Share knowledge with step-by-step tutorials that engage and educate',
       platforms: ['instagram', 'linkedin', 'youtube'],
       variables: ['topic', 'steps', 'difficulty_level', 'duration'],
-      exampleContent: '📚 Tutorial: How to [Topic]\n\nHere\'s a step-by-step guide:\n\n1️⃣ [Step 1]\n2️⃣ [Step 2]\n3️⃣ [Step 3]\n\n💡 Pro tip: [Additional insight]\n\nSave this post for later! 🔖',
-      icon: Lightbulb,
+      exampleContent: '📚 Tutorial: How to [Topic]\n\nHere\'s a step-by-step guide:\n\n1️⃣ [Step 1]\n2️⃣ [Step 2]\n3️⃣ [Step 3]\n\n💡 Pro tip: [Additional insight]\n\nSave this post for later! 🔖\n\n#Tutorial #Education #HowTo',
+      icon: '📚',
       color: 'from-green-500 to-blue-500',
-      popularity: 88
+      popularity: 88,
+      rating: 4.9,
+      uses: 890,
+      features: ['Step-by-step format', 'Visual cues', 'Knowledge retention']
     },
     {
-      id: 3,
+      id: 'behind-scenes',
       name: 'Behind the Scenes',
       category: 'social-media',
       description: 'Give your audience an authentic look into your process and culture',
       platforms: ['instagram', 'facebook', 'linkedin'],
       variables: ['activity', 'team_member', 'insight', 'company_value'],
-      exampleContent: '👀 Behind the scenes at [Company]\n\nToday, [Team Member] is [Activity]. Here\'s what most people don\'t see:\n\n[Insight about the process]\n\nThis is why we believe in [Company Value] ❤️\n\n#BehindTheScenes #TeamWork',
-      icon: Users,
+      exampleContent: '👀 Behind the scenes at [Company]\n\nToday, [Team Member] is [Activity]. Here\'s what most people don\'t see:\n\n[Insight about the process]\n\nThis is why we believe in [Company Value] ❤️\n\n#BehindTheScenes #TeamWork #Authentic',
+      icon: '🎬',
       color: 'from-pink-500 to-red-500',
-      popularity: 82
-    },
-    {
-      id: 4,
-      name: 'Video Script Template',
-      category: 'video',
-      description: 'Engaging video scripts optimized for different platforms and lengths',
-      platforms: ['youtube', 'tiktok', 'instagram'],
-      variables: ['hook', 'main_points', 'call_to_action', 'video_length'],
-      exampleContent: 'HOOK: [Attention-grabbing opening]\n\nHi everyone! Today we\'re talking about [Topic]\n\nMain Points:\n- [Point 1]\n- [Point 2]\n- [Point 3]\n\nCTA: [Call to action]\n\n[Engagement prompt]',
-      icon: Video,
-      color: 'from-purple-500 to-pink-500',
-      popularity: 91
-    },
-    {
-      id: 5,
-      name: 'Industry Insights',
-      category: 'educational',
-      description: 'Share expert insights and trends in your industry',
-      platforms: ['linkedin', 'twitter'],
-      variables: ['trend', 'impact', 'prediction', 'advice'],
-      exampleContent: '📈 Industry Insight: [Trend]\n\nWhat this means for [Industry]:\n\n🔍 Current Impact: [Impact]\n🚀 Future Prediction: [Prediction]\n💡 My Advice: [Advice]\n\nWhat\'s your take? Share below! 👇',
-      icon: Star,
-      color: 'from-yellow-500 to-orange-500',
-      popularity: 76
-    },
-    {
-      id: 6,
-      name: 'Community Question',
-      category: 'social-media',
-      description: 'Boost engagement with thought-provoking questions for your community',
-      platforms: ['instagram', 'facebook', 'linkedin'],
-      variables: ['question', 'context', 'options', 'personal_take'],
-      exampleContent: '🤔 Community Question:\n\n[Context about the topic]\n\nHere\'s what I want to know: [Question]\n\nOption A: [Option 1]\nOption B: [Option 2]\n\nMy take: [Personal opinion]\n\nWhat do you think? Let me know below! 👇',
-      icon: FileText,
-      color: 'from-teal-500 to-green-500',
-      popularity: 84
+      popularity: 82,
+      rating: 4.7,
+      uses: 2100,
+      features: ['Authenticity focus', 'Story structure', 'Engagement hooks']
     }
   ];
 
@@ -118,7 +96,7 @@ export const TemplateGallery = ({ onGetStarted }: TemplateGalleryProps) => {
           Browse Content Templates
         </h2>
         <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-          Explore our AI-optimized templates. No sign-up required to preview!
+          Explore our AI-optimized templates. Preview examples and start creating instantly!
         </p>
       </div>
 
@@ -138,81 +116,71 @@ export const TemplateGallery = ({ onGetStarted }: TemplateGalleryProps) => {
 
       {/* Templates Grid */}
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredTemplates.map((template) => {
-          const Icon = template.icon;
-          return (
-            <Card key={template.id} className="group hover:shadow-lg transition-all duration-300 hover:scale-[1.02]">
-              <CardHeader className="pb-4">
-                <div className="flex items-start justify-between">
-                  <div className={`w-12 h-12 bg-gradient-to-br ${template.color} rounded-xl flex items-center justify-center`}>
-                    <Icon className="w-6 h-6 text-white" />
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Star className="w-4 h-4 text-yellow-500 fill-current" />
-                    <span className="text-sm font-medium">{template.popularity}%</span>
-                  </div>
+        {filteredTemplates.map((template) => (
+          <Card key={template.id} className="group hover:shadow-lg transition-all duration-300 hover:scale-[1.02]">
+            <CardHeader className="pb-4">
+              <div className="flex items-start justify-between">
+                <div className={`w-12 h-12 bg-gradient-to-br ${template.color} rounded-xl flex items-center justify-center text-2xl`}>
+                  {template.icon}
                 </div>
-                <CardTitle className="text-lg group-hover:text-purple-600 transition-colors">
-                  {template.name}
-                </CardTitle>
-                <p className="text-sm text-gray-600 leading-relaxed">
-                  {template.description}
-                </p>
-              </CardHeader>
-
-              <CardContent className="space-y-4">
-                {/* Platform Support */}
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-medium text-gray-500">Platforms:</span>
-                  <div className="flex gap-1">
-                    {template.platforms.slice(0, 4).map((platform) => (
-                      <div key={platform} className="p-1 rounded bg-gray-100">
-                        {getPlatformIcon(platform)}
-                      </div>
-                    ))}
-                    {template.platforms.length > 4 && (
-                      <span className="text-xs text-gray-500 ml-1">+{template.platforms.length - 4}</span>
-                    )}
-                  </div>
+                <div className="flex items-center gap-1">
+                  <Star className="w-4 h-4 text-yellow-500 fill-current" />
+                  <span className="text-sm font-medium">{template.rating}</span>
                 </div>
+              </div>
+              <CardTitle className="text-lg group-hover:text-purple-600 transition-colors">
+                {template.name}
+              </CardTitle>
+              <p className="text-sm text-gray-600 leading-relaxed">
+                {template.description}
+              </p>
+            </CardHeader>
 
-                {/* Variables */}
+            <CardContent className="space-y-4">
+              {/* Platform Support */}
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-medium text-gray-500">Platforms:</span>
+                <div className="flex gap-1">
+                  {template.platforms.slice(0, 4).map((platform) => (
+                    <div key={platform} className="p-1 rounded bg-gray-100">
+                      {getPlatformIcon(platform)}
+                    </div>
+                  ))}
+                  {template.platforms.length > 4 && (
+                    <span className="text-xs text-gray-500 ml-1">+{template.platforms.length - 4}</span>
+                  )}
+                </div>
+              </div>
+
+              {/* Features */}
+              {template.features && (
                 <div className="space-y-2">
-                  <span className="text-xs font-medium text-gray-500">Variables:</span>
+                  <span className="text-xs font-medium text-gray-500">Key Features:</span>
                   <div className="flex flex-wrap gap-1">
-                    {template.variables.slice(0, 3).map((variable) => (
-                      <Badge key={variable} variant="outline" className="text-xs">
-                        {variable.replace(/_/g, ' ')}
+                    {template.features.slice(0, 3).map((feature) => (
+                      <Badge key={feature} variant="outline" className="text-xs">
+                        {feature}
                       </Badge>
                     ))}
-                    {template.variables.length > 3 && (
-                      <Badge variant="outline" className="text-xs">
-                        +{template.variables.length - 3} more
-                      </Badge>
-                    )}
                   </div>
                 </div>
+              )}
 
-                {/* Example Preview */}
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <span className="text-xs font-medium text-gray-500 block mb-2">Preview:</span>
-                  <p className="text-xs text-gray-700 leading-relaxed line-clamp-3">
-                    {template.exampleContent}
-                  </p>
-                </div>
+              {/* Stats */}
+              <div className="flex items-center justify-between text-sm text-gray-500">
+                <span>{template.uses?.toLocaleString()} uses</span>
+                <span>{template.popularity}% success rate</span>
+              </div>
 
-                {/* Action Button */}
-                <Button 
-                  onClick={onGetStarted}
-                  className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 transition-all group-hover:scale-105"
-                >
-                  Use This Template
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
-              </CardContent>
-            </Card>
-          );
-        })}
+              {/* Action Buttons */}
+              <TemplateActionButtons
+                template={template}
+                variant="full"
+                className="pt-2"
+              />
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
       {/* CTA Section */}

@@ -1,9 +1,9 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useResponsiveNavigation } from "./useResponsiveNavigation";
+import { TemplateService } from "@/services/templateService";
 
 export const useAppNavigation = () => {
   const [activeTab, setActiveTab] = useState("home");
@@ -28,6 +28,11 @@ export const useAppNavigation = () => {
     currentPath: location.pathname,
     isNavigating: isResponsiveNavigating
   });
+
+  // Initialize template service on mount
+  useEffect(() => {
+    TemplateService.getInstance().initialize();
+  }, []);
 
   // Clean up any hash-based URLs on mount
   useEffect(() => {
