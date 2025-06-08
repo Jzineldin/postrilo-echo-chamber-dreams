@@ -19,7 +19,8 @@ import { MultiStepContentGeneratorProps } from "./multi-step/types";
 
 export const MultiStepContentGenerator = ({ 
   canGenerateMore, 
-  postsRemaining 
+  postsRemaining,
+  initialTemplate 
 }: MultiStepContentGeneratorProps) => {
   const isMobile = useIsMobile();
   

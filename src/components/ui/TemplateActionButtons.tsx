@@ -117,7 +117,9 @@ export const TemplateActionButtons = ({
               isFavorited && "text-red-500 hover:text-red-600"
             )}
             aria-label={isFavorited ? "Remove from favorites" : "Add to favorites"}
-          />
+          >
+            {/* Empty children for favorite button */}
+          </ResponsiveButton>
         )}
       </div>
 
@@ -160,7 +162,9 @@ export const TemplateActionButtons = ({
                     icon={Copy}
                     className="p-1"
                     aria-label="Copy preview content"
-                  />
+                  >
+                    {/* Empty children for copy button */}
+                  </ResponsiveButton>
                 </div>
                 
                 <div className="bg-gray-50 p-3 rounded-lg">
