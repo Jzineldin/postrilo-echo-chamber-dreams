@@ -3,6 +3,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Home, Wand2 } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useNavigate } from 'react-router-dom';
 
 interface UniversalHeaderProps {
   title?: string;
@@ -20,13 +21,14 @@ export const UniversalHeader = ({
   currentPage 
 }: UniversalHeaderProps) => {
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
 
   const handleBackClick = () => {
     if (onBack) {
       onBack();
     } else {
       // Default back behavior - go to dashboard
-      window.location.hash = 'dashboard';
+      navigate('/dashboard');
     }
   };
 
@@ -35,8 +37,12 @@ export const UniversalHeader = ({
       onHome();
     } else {
       // Default home behavior
-      window.location.hash = 'dashboard';
+      navigate('/dashboard');
     }
+  };
+
+  const handleLogoClick = () => {
+    navigate('/dashboard');
   };
 
   return (
@@ -47,7 +53,7 @@ export const UniversalHeader = ({
             {/* Logo - always clickable to go home */}
             <div 
               className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
-              onClick={handleHomeClick}
+              onClick={handleLogoClick}
             >
               <Wand2 className="w-6 h-6 text-purple-600" />
               <span className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">

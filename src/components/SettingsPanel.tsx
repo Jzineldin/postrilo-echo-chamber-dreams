@@ -3,12 +3,14 @@ import React from 'react';
 import { UniversalHeader } from './navigation/UniversalHeader';
 import { SettingsHub } from './settings/SettingsHub';
 import { useAuth } from '@/hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
 
 export const SettingsPanel = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   const handleBack = () => {
-    window.location.hash = 'dashboard';
+    navigate('/dashboard');
   };
 
   return (

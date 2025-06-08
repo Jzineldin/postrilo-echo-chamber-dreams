@@ -1,5 +1,6 @@
 
 import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 
@@ -7,46 +8,45 @@ export const useAppNavigation = () => {
   const [activeTab, setActiveTab] = useState("home");
   const { user, signOut, loading } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   console.log("App navigation state:", { activeTab, user: !!user, loading });
 
-  // Handle hash-based navigation
+  // Handle route-based navigation instead of hash-based
   useEffect(() => {
-    const handleHashChange = () => {
-      const hash = window.location.hash.slice(1);
-      console.log("Hash changed to:", hash);
-      
-      if (hash) {
-        const validTabs = ['dashboard', 'create', 'library', 'analytics', 'brand-voice', 'scheduler', 'settings', 'pricing', 'help', 'auth', 'home'];
-        if (validTabs.includes(hash)) {
-          setActiveTab(hash);
-        }
-      } else {
-        // If no hash, stay on home - don't auto-redirect authenticated users
-        setActiveTab("home");
-      }
+    const pathname = location.pathname;
+    console.log("Route changed to:", pathname);
+    
+    // Map routes to tabs
+    const routeToTab = {
+      '/': 'home',
+      '/dashboard': 'dashboard',
+      '/create': 'create',
+      '/library': 'library',
+      '/analytics': 'analytics',
+      '/brand-voice': 'brand-voice',
+      '/scheduler': 'scheduler',
+      '/settings': 'settings',
+      '/pricing': 'pricing',
+      '/help': 'help',
+      '/auth': 'auth'
     };
 
-    handleHashChange(); // Check initial hash
-    window.addEventListener('hashchange', handleHashChange);
-    
-    return () => window.removeEventListener('hashchange', handleHashChange);
-  }, []); // Remove user dependency to prevent auto-redirect
+    const tab = routeToTab[pathname] || 'home';
+    setActiveTab(tab);
+  }, [location.pathname]);
 
   const handleAuth = () => {
     console.log("Auth handler called - navigating to auth page");
     setActiveTab("auth");
-    window.location.hash = 'auth';
+    navigate('/auth');
   };
 
   const handleAuthSuccess = () => {
     console.log("Auth success - navigating to dashboard");
     setActiveTab("dashboard");
-    window.location.hash = 'dashboard';
-    // Force a full page refresh to ensure clean state
-    setTimeout(() => {
-      window.location.href = '/#dashboard';
-    }, 100);
+    navigate('/dashboard');
   };
 
   const handleLogout = async () => {
@@ -54,11 +54,7 @@ export const useAppNavigation = () => {
       console.log("Logging out user");
       await signOut();
       setActiveTab("home");
-      window.location.hash = '';
-      // Force page refresh after logout
-      setTimeout(() => {
-        window.location.href = '/';
-      }, 100);
+      navigate('/');
       toast({
         title: "Logged Out",
         description: "You have been successfully logged out.",
@@ -82,7 +78,7 @@ export const useAppNavigation = () => {
     if (protectedTabs.includes(newTab) && !user) {
       console.log("Protected tab requested without auth, redirecting to auth");
       setActiveTab("auth");
-      window.location.hash = 'auth';
+      navigate('/auth');
       toast({
         title: "Authentication Required",
         description: "Please log in to access this feature.",
@@ -92,7 +88,24 @@ export const useAppNavigation = () => {
     
     console.log("Changing tab to:", newTab);
     setActiveTab(newTab);
-    window.location.hash = newTab === "home" ? '' : newTab;
+    
+    // Navigate to proper route
+    const tabToRoute = {
+      'home': '/',
+      'dashboard': '/dashboard',
+      'create': '/create',
+      'library': '/library',
+      'analytics': '/analytics',
+      'brand-voice': '/brand-voice',
+      'scheduler': '/scheduler',
+      'settings': '/settings',
+      'pricing': '/pricing',
+      'help': '/help',
+      'auth': '/auth'
+    };
+
+    const route = tabToRoute[newTab] || '/';
+    navigate(route);
   };
 
   return {

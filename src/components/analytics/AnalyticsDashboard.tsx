@@ -4,10 +4,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { BarChart3, TrendingUp, Users, Target } from 'lucide-react';
 import { UniversalHeader } from '../navigation/UniversalHeader';
+import { useNavigate } from 'react-router-dom';
 
 export const AnalyticsDashboard = () => {
+  const navigate = useNavigate();
+
   const handleBack = () => {
-    window.location.hash = 'dashboard';
+    navigate('/dashboard');
   };
 
   const stats = [

@@ -3,16 +3,18 @@ import React from "react";
 import { MultiStepContentGenerator } from "./MultiStepContentGenerator";
 import { useSubscription } from "@/hooks/useSubscription";
 import { UniversalHeader } from "./navigation/UniversalHeader";
+import { useNavigate } from "react-router-dom";
 
 const ContentGenerator = () => {
   console.log("ContentGenerator: Loading MultiStepContentGenerator");
   
   const { postsUsedThisMonth, monthlyPostsLimit } = useSubscription();
+  const navigate = useNavigate();
   const postsRemaining = Math.max(0, monthlyPostsLimit - postsUsedThisMonth);
   const canGenerateMore = postsRemaining > 0;
 
   const handleBack = () => {
-    window.location.hash = 'dashboard';
+    navigate('/dashboard');
   };
   
   return (
