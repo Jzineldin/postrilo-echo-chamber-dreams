@@ -174,7 +174,7 @@ export class SocialMediaService {
       if (connection.tokens.expiresAt && new Date() > connection.tokens.expiresAt) {
         if (connection.tokens.refreshToken && connection.clientId && connection.clientSecret) {
           connection.tokens = await OAuthService.refreshAccessToken(
-            platform,
+            post.platform,
             connection.tokens.refreshToken,
             connection.clientId,
             connection.clientSecret
