@@ -3,42 +3,74 @@ import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Copy, Save, RefreshCw, AlertTriangle, CheckCircle } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
+import { Copy, Sparkles, RefreshCw, RotateCcw } from "lucide-react";
 import { FormData } from "../multi-step/types";
-import { ContentQualityService } from "@/services/ai/contentQualityService";
+import { useToast } from "@/hooks/use-toast";
 
 interface ReviewGenerateStepProps {
   formData: FormData;
-  generatedContent: string;
-  generatedHashtags: string[];
+  generatedContent?: string;
+  generatedHashtags?: string[];
   isGenerating: boolean;
-  canGenerateMore: boolean;
   onGenerate: () => void;
+  canGenerateMore: boolean;
   onPrevious?: () => void;
   onStartOver?: () => void;
 }
 
-export const ReviewGenerateStep = ({
-  formData,
-  generatedContent,
-  generatedHashtags,
-  isGenerating,
-  canGenerateMore,
+export const ReviewGenerateStep = ({ 
+  formData, 
+  generatedContent, 
+  generatedHashtags, 
+  isGenerating, 
   onGenerate,
+  canGenerateMore,
   onPrevious,
   onStartOver
 }: ReviewGenerateStepProps) => {
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(generatedContent);
+  const { toast } = useToast();
+
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast({
+        title: "Copied!",
+        description: "Content copied to clipboard",
+      });
+    } catch (err) {
+      console.error('Failed to copy text: ', err);
+    }
   };
 
-  // Get platform for quality evaluation
-  const platform = formData.platform || formData.platforms?.[0] || 'instagram';
+  const platformDisplay = formData.platforms?.length > 0 
+    ? formData.platforms.join(", ") 
+    : formData.platform || "Not specified";
 
-  // Evaluate content quality if content exists
-  const qualityEvaluation = generatedContent ? 
-    ContentQualityService.evaluateContent(generatedContent, platform, formData.language) : 
-    null;
+  const reviewItems = [
+    { label: "Content Type", value: formData.contentType },
+    { label: "Topic", value: formData.topic },
+    { label: "Platform(s)", value: platformDisplay },
+    { label: "Tone", value: formData.tone },
+    { label: "Goal", value: formData.goal },
+    { label: "Language", value: formData.language },
+  ];
+
+  // Add optional fields if they exist
+  if (formData.includeEmojis) {
+    reviewItems.push({ label: "Include Emojis", value: "Yes" });
+  }
+  
+  if (formData.includeHashtags) {
+    reviewItems.push({ label: "Include Hashtags", value: "Yes" });
+  }
+
+  if (formData.keyPoints && formData.keyPoints.length > 0) {
+    reviewItems.push({ 
+      label: "Key Points", 
+      value: formData.keyPoints.join(", ") 
+    });
+  }
 
   return (
     <div className="space-y-6">
@@ -47,167 +79,98 @@ export const ReviewGenerateStep = ({
         <p className="text-gray-600">Review your settings and generate your content</p>
       </div>
 
-      {/* Settings Review */}
+      {/* Review Settings */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Content Settings</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <Sparkles className="w-5 h-5" />
+            Content Settings
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <div className="grid grid-cols-2 gap-4 text-sm">
-            <div>
-              <span className="font-medium">Type:</span> {formData.contentType}
+          {reviewItems.map((item, index) => (
+            <div key={index} className="flex justify-between items-center">
+              <span className="font-medium text-gray-700">{item.label}:</span>
+              <Badge variant="secondary">{item.value}</Badge>
             </div>
-            <div>
-              <span className="font-medium">Platform:</span> {platform}
-            </div>
-            <div>
-              <span className="font-medium">Language:</span> {formData.language}
-            </div>
-            <div>
-              <span className="font-medium">Tone:</span> {formData.tone}
-            </div>
-            <div>
-              <span className="font-medium">Goal:</span> {formData.goal}
-            </div>
-            <div>
-              <span className="font-medium">Emojis:</span> {formData.includeEmojis ? 'Yes' : 'No'}
-            </div>
-          </div>
-          
-          <div className="pt-2">
-            <span className="font-medium">Topic:</span>
-            <p className="text-gray-600 mt-1">{formData.topic}</p>
-          </div>
-
-          {/* Handle both keyPoints and bulletPoints */}
-          {((formData.keyPoints && formData.keyPoints.length > 0) || (formData.bulletPoints && formData.bulletPoints.length > 0)) && (
-            <div className="pt-2">
-              <span className="font-medium">Key Points:</span>
-              <ul className="list-disc list-inside text-gray-600 mt-1">
-                {(formData.keyPoints || formData.bulletPoints || []).map((point, index) => (
-                  <li key={index}>{point}</li>
-                ))}
-              </ul>
-            </div>
-          )}
+          ))}
         </CardContent>
       </Card>
 
       {/* Generate Button */}
-      <div className="text-center">
+      <div className="flex justify-center">
         <Button
           onClick={onGenerate}
           disabled={isGenerating || !canGenerateMore}
           size="lg"
-          className="px-8"
+          className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8 py-3"
         >
           {isGenerating ? (
             <>
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
               Generating...
             </>
           ) : (
-            "Generate Content"
+            <>
+              <Sparkles className="w-4 h-4 mr-2" />
+              Generate Content
+            </>
           )}
         </Button>
-        
-        {!canGenerateMore && (
-          <p className="text-sm text-red-600 mt-2">
-            Generation limit reached.
-          </p>
-        )}
       </div>
 
       {/* Generated Content */}
       {generatedContent && (
         <Card>
           <CardHeader>
-            <div className="flex justify-between items-center">
-              <CardTitle className="text-lg flex items-center gap-2">
-                Generated Content
-                {qualityEvaluation && (
-                  <Badge variant={qualityEvaluation.score >= 80 ? "default" : "destructive"}>
-                    Quality: {qualityEvaluation.score}%
-                  </Badge>
-                )}
-              </CardTitle>
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={copyToClipboard}>
-                  <Copy className="w-4 h-4 mr-1" />
-                  Copy
-                </Button>
-                <Button variant="outline" size="sm" onClick={onGenerate}>
-                  <RefreshCw className="w-4 h-4 mr-1" />
-                  Regenerate
-                </Button>
-              </div>
-            </div>
+            <CardTitle className="flex items-center justify-between">
+              <span>Generated Content</span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => copyToClipboard(generatedContent)}
+              >
+                <Copy className="w-4 h-4 mr-2" />
+                Copy
+              </Button>
+            </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            {/* Quality Assessment */}
-            {qualityEvaluation && (qualityEvaluation.issues.length > 0 || qualityEvaluation.suggestions.length > 0) && (
-              <div className="space-y-2">
-                {qualityEvaluation.issues.length > 0 && (
-                  <div className="flex items-start gap-2 p-3 bg-red-50 rounded-lg">
-                    <AlertTriangle className="w-4 h-4 text-red-500 mt-0.5" />
-                    <div>
-                      <div className="font-medium text-red-700">Content Issues:</div>
-                      <ul className="text-sm text-red-600 mt-1">
-                        {qualityEvaluation.issues.map((issue, index) => (
-                          <li key={index}>• {issue}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                )}
-                
-                {qualityEvaluation.suggestions.length > 0 && (
-                  <div className="flex items-start gap-2 p-3 bg-blue-50 rounded-lg">
-                    <CheckCircle className="w-4 h-4 text-blue-500 mt-0.5" />
-                    <div>
-                      <div className="font-medium text-blue-700">Suggestions:</div>
-                      <ul className="text-sm text-blue-600 mt-1">
-                        {qualityEvaluation.suggestions.map((suggestion, index) => (
-                          <li key={index}>• {suggestion}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-
-            <div className="bg-gray-50 p-4 rounded-lg whitespace-pre-wrap">
-              {generatedContent}
+          <CardContent>
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <p className="whitespace-pre-wrap">{generatedContent}</p>
             </div>
             
-            {/* Generated Hashtags */}
             {generatedHashtags && generatedHashtags.length > 0 && (
-              <div className="mt-4">
-                <h4 className="font-medium mb-2">Suggested Hashtags:</h4>
-                <div className="flex flex-wrap gap-1">
-                  {generatedHashtags.map((hashtag, index) => (
-                    <Badge key={index} variant="secondary" className="text-xs">
-                      #{hashtag}
-                    </Badge>
-                  ))}
+              <>
+                <Separator className="my-4" />
+                <div>
+                  <h4 className="font-medium mb-2">Suggested Hashtags:</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {generatedHashtags.map((hashtag, index) => (
+                      <Badge key={index} variant="outline">
+                        {hashtag}
+                      </Badge>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              </>
             )}
           </CardContent>
         </Card>
       )}
 
-      {/* Navigation */}
-      {(onPrevious || onStartOver) && (
-        <div className="flex justify-between pt-4">
+      {/* Action Buttons */}
+      {generatedContent && (
+        <div className="flex gap-3 justify-center">
           {onPrevious && (
             <Button variant="outline" onClick={onPrevious}>
-              Previous
+              <RotateCcw className="w-4 h-4 mr-2" />
+              Previous Step
             </Button>
           )}
           {onStartOver && (
             <Button variant="outline" onClick={onStartOver}>
+              <RefreshCw className="w-4 h-4 mr-2" />
               Start Over
             </Button>
           )}
