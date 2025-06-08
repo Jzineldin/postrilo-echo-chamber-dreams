@@ -2,6 +2,7 @@ import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { ArrowLeft } from "lucide-react";
 import { useMultiStepForm } from "./content-generator/multi-step/hooks/useMultiStepForm";
 import { useContentGeneration } from "./content-generator/multi-step/hooks/useContentGeneration";
 import { ContentTypeStep } from "./content-generator/steps/ContentTypeStep";
@@ -17,11 +18,13 @@ import { useIsMobile } from "@/hooks/use-mobile";
 interface MultiStepContentGeneratorProps {
   canGenerateMore: boolean;
   postsRemaining: number;
+  onBack?: () => void;
 }
 
 export const MultiStepContentGenerator = ({ 
   canGenerateMore, 
-  postsRemaining 
+  postsRemaining,
+  onBack 
 }: MultiStepContentGeneratorProps) => {
   const isMobile = useIsMobile();
   
@@ -62,10 +65,29 @@ export const MultiStepContentGenerator = ({
     console.error('Mobile generation error:', error);
   };
 
+  const handleBackToDashboard = () => {
+    if (onBack) {
+      onBack();
+    } else {
+      // Fallback navigation
+      window.location.hash = 'dashboard';
+    }
+  };
+
   // Use mobile component for mobile devices
   if (isMobile) {
     return (
       <div className="px-3 py-4">
+        <div className="mb-4">
+          <Button
+            variant="ghost"
+            onClick={handleBackToDashboard}
+            className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to Dashboard
+          </Button>
+        </div>
         <MobileContentGenerator
           onContentGenerated={onMobileContentGenerated}
           onGenerationError={onMobileGenerationError}
@@ -93,6 +115,7 @@ export const MultiStepContentGenerator = ({
           <TopicPlatformStep
             formData={formData}
             updateFormData={updateFormData}
+            onBack={handleBackToDashboard}
           />
         );
       case 3:
@@ -129,6 +152,18 @@ export const MultiStepContentGenerator = ({
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
+      {/* Back to Dashboard Button */}
+      <div className="flex items-center justify-between">
+        <Button
+          variant="ghost"
+          onClick={handleBackToDashboard}
+          className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back to Dashboard
+        </Button>
+      </div>
+
       <ProgressHeader 
         currentStep={currentStep}
         postsRemaining={postsRemaining}

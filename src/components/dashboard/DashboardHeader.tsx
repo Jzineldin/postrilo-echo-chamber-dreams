@@ -18,7 +18,10 @@ export const DashboardHeader = ({ onTabChange }: DashboardHeaderProps) => {
   const handleGoHome = () => {
     console.log('Navigate to home');
     if (onTabChange) {
-      onTabChange('home');
+      onTabChange('dashboard');
+    } else {
+      // Fallback navigation
+      window.location.hash = 'dashboard';
     }
   };
 
@@ -32,7 +35,7 @@ export const DashboardHeader = ({ onTabChange }: DashboardHeaderProps) => {
           className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
         >
           <Home className="w-4 h-4" />
-          Home
+          Dashboard
         </Button>
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
