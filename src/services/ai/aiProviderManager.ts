@@ -64,11 +64,16 @@ Make sure the content is ready to post and follows ${formData.platform} best pra
         throw new Error(data.error);
       }
 
+      const content = data?.content || '';
+      if (!content || content.trim().length === 0) {
+        throw new Error('No content was generated');
+      }
+
       console.log('✅ AIProviderManager: Content generated successfully');
       
       return {
-        content: data?.content || 'No content generated',
-        hashtags: this.extractHashtags(data?.content || ''),
+        content: content,
+        hashtags: this.extractHashtags(content),
         fallbackUsed: false,
         usage: {
           promptTokens: data?.usage?.promptTokens || 0,
