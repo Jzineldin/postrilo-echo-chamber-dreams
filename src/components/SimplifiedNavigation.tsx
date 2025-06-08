@@ -22,8 +22,8 @@ interface SimplifiedNavigationProps {
 // Core features only
 const coreNavigationItems = [
   { id: 'dashboard', label: 'Dashboard', icon: Home, description: 'Your content overview' },
-  { id: 'create', label: 'Create', icon: Wand2, description: 'Generate new content' },
-  { id: 'library', label: 'Library', icon: Archive, description: 'Saved content' },
+  { id: 'create', label: 'Create Content', icon: Wand2, description: 'Generate new content' },
+  { id: 'library', label: 'Content Library', icon: Archive, description: 'Saved content' },
   { id: 'settings', label: 'Settings', icon: Settings, description: 'Account & preferences' },
 ];
 

@@ -17,7 +17,7 @@ export const useAppNavigation = () => {
       console.log("Hash changed to:", hash);
       
       if (hash) {
-        const validTabs = ['dashboard', 'create', 'analytics', 'brand-voice', 'scheduler', 'settings', 'pricing', 'help', 'auth', 'home'];
+        const validTabs = ['dashboard', 'create', 'library', 'analytics', 'brand-voice', 'scheduler', 'settings', 'pricing', 'help', 'auth', 'home'];
         if (validTabs.includes(hash)) {
           setActiveTab(hash);
         }
@@ -77,7 +77,7 @@ export const useAppNavigation = () => {
     console.log("Tab change requested:", { from: activeTab, to: newTab });
     
     // Check if user needs to be authenticated for protected tabs
-    const protectedTabs = ["dashboard", "create", "analytics", "brand-voice", "scheduler", "settings"];
+    const protectedTabs = ["dashboard", "create", "library", "analytics", "brand-voice", "scheduler", "settings"];
     
     if (protectedTabs.includes(newTab) && !user) {
       console.log("Protected tab requested without auth, redirecting to auth");

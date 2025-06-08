@@ -9,7 +9,7 @@ import {
   Plus, 
   BarChart3, 
   Settings, 
-  FolderOpen,
+  Archive,
   Target,
   CheckSquare,
   Zap,
@@ -34,6 +34,7 @@ export const MobileNavigation = ({
   const navigationItems = [
     { id: "dashboard", label: "Dashboard", icon: Home, badge: null },
     { id: "create", label: "Create Content", icon: Plus, badge: null },
+    { id: "library", label: "Content Library", icon: Archive, badge: null },
     { id: "analytics", label: "Analytics", icon: BarChart3, badge: unreadNotifications > 0 ? unreadNotifications : null },
     { id: "brand-voice", label: "Brand Voice", icon: Target, badge: null },
     { id: "scheduler", label: "Scheduler", icon: CheckSquare, badge: null },
@@ -71,13 +72,13 @@ export const MobileNavigation = ({
           </Button>
 
           <Button
-            variant={activeTab === "analytics" ? "default" : "ghost"}
+            variant={activeTab === "library" ? "default" : "ghost"}
             size="sm"
-            onClick={() => handleNavigation("analytics")}
+            onClick={() => handleNavigation("library")}
             className="flex flex-col gap-1 h-auto py-2 px-3 touch-friendly"
           >
-            <BarChart3 className="w-4 h-4" />
-            <span className="text-xs">Analytics</span>
+            <Archive className="w-4 h-4" />
+            <span className="text-xs">Library</span>
           </Button>
 
           <Sheet open={isOpen} onOpenChange={setIsOpen}>

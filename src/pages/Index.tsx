@@ -13,6 +13,7 @@ import ContentGenerator from "@/components/ContentGenerator";
 import { BrandVoiceManager } from "@/components/BrandVoiceManager";
 import { ContentScheduler } from "@/components/ContentScheduler";
 import { SettingsPanel } from "@/components/SettingsPanel";
+import { ContentLibrary } from "@/components/ContentLibrary";
 import { ContentGeneratorErrorBoundary } from "@/components/error/ContentGeneratorErrorBoundary";
 import { UniversalHeader } from "@/components/navigation/UniversalHeader";
 
@@ -112,6 +113,22 @@ const Index = () => {
         <ContentGeneratorErrorBoundary>
           <ContentGenerator />
         </ContentGeneratorErrorBoundary>
+      );
+    
+    case "library":
+      if (!user) {
+        handleAuth();
+        return <AppLoading />;
+      }
+      return (
+        <div className="min-h-screen bg-gray-50">
+          <UniversalHeader 
+            title="Content Library"
+            currentPage="Manage all your saved content in one place"
+            onBack={handleBackToDashboard}
+          />
+          <ContentLibrary />
+        </div>
       );
     
     case "analytics":
