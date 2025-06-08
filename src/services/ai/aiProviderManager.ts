@@ -33,13 +33,19 @@ interface MultiProviderAIResponse {
   };
 }
 
+// Define interface for the Supabase function response
+interface SupabaseFunctionResponse {
+  data: MultiProviderAIResponse | null;
+  error: any;
+}
+
 export const aiProviderManager = {
   generateContent: async (options: GenerateContentOptions, formData: any): Promise<GenerateContentResponse> => {
     try {
       console.log('🎯 AIProviderManager: Calling multi-provider-ai edge function');
       
       // Safely handle formData with proper fallbacks
-      const safeFormData = formData || {};
+      const safeFormData = formData ?? {};
       
       // Build a comprehensive prompt
       const enhancedPrompt = `Create ${safeFormData.contentType || 'content'} content for ${safeFormData.platform || 'social media'} about: ${safeFormData.topic || 'the topic'}
@@ -60,7 +66,7 @@ Requirements:
 
 Make sure the content is ready to post and follows ${safeFormData.platform || 'social media'} best practices.`;
 
-      const { data, error } = await supabase.functions.invoke('multi-provider-ai', {
+      const response: SupabaseFunctionResponse = await supabase.functions.invoke('multi-provider-ai', {
         body: {
           prompt: enhancedPrompt,
           preferredProvider: 'gemini',
@@ -68,13 +74,13 @@ Make sure the content is ready to post and follows ${safeFormData.platform || 's
         }
       });
 
-      if (error) {
-        console.error('Supabase function error:', error);
-        throw new Error(error.message || 'Failed to generate content');
+      if (response.error) {
+        console.error('Supabase function error:', response.error);
+        throw new Error(response.error.message || 'Failed to generate content');
       }
 
-      // Type the response data properly
-      const responseData = data as MultiProviderAIResponse | null;
+      // Type the response data properly with explicit null check
+      const responseData = response.data;
       
       if (!responseData) {
         throw new Error('No response data received');
@@ -86,18 +92,18 @@ Make sure the content is ready to post and follows ${safeFormData.platform || 's
       }
 
       // Safely extract content with proper validation
-      const content = responseData.content || '';
+      const content = responseData.content ?? '';
       if (!content || content.trim().length === 0) {
         throw new Error('No content was generated');
       }
 
       console.log('✅ AIProviderManager: Content generated successfully');
       
-      // Safely extract usage data with proper typing and fallbacks
-      const usage = responseData.usage || {};
-      const promptTokens = usage.promptTokens || 0;
-      const completionTokens = usage.completionTokens || 0;
-      const totalTokens = usage.totalTokens || 0;
+      // Safely extract usage data with explicit null checks and fallbacks
+      const usage = responseData.usage ?? {};
+      const promptTokens = usage.promptTokens ?? 0;
+      const completionTokens = usage.completionTokens ?? 0;
+      const totalTokens = usage.totalTokens ?? 0;
       
       return {
         content: content,
@@ -113,7 +119,7 @@ Make sure the content is ready to post and follows ${safeFormData.platform || 's
       console.error('AIProviderManager error:', error);
       
       // Provide fallback content with safe formData handling
-      const safeFormData = formData || {};
+      const safeFormData = formData ?? {};
       const fallbackContent = this.generateFallbackContent(safeFormData);
       return {
         content: fallbackContent,
@@ -130,7 +136,7 @@ Make sure the content is ready to post and follows ${safeFormData.platform || 's
 
   generateFallbackContent: (formData: any): string => {
     // Safely access formData properties with fallbacks
-    const safeFormData = formData || {};
+    const safeFormData = formData ?? {};
     const platform = safeFormData.platform || 'default';
     const topic = safeFormData.topic || 'your topic';
     
