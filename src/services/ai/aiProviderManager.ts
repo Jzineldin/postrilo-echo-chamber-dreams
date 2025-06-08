@@ -1,5 +1,4 @@
 
-
 import { supabase } from "@/integrations/supabase/client";
 
 interface GenerateContentOptions {
@@ -23,29 +22,43 @@ interface GenerateContentResponse {
   };
 }
 
+// Define proper interface for the multi-provider-ai response
+interface MultiProviderAIResponse {
+  content?: string;
+  error?: string;
+  usage?: {
+    promptTokens?: number;
+    completionTokens?: number;
+    totalTokens?: number;
+  };
+}
+
 export const aiProviderManager = {
   generateContent: async (options: GenerateContentOptions, formData: any): Promise<GenerateContentResponse> => {
     try {
       console.log('🎯 AIProviderManager: Calling multi-provider-ai edge function');
       
+      // Safely handle formData with proper fallbacks
+      const safeFormData = formData || {};
+      
       // Build a comprehensive prompt
-      const enhancedPrompt = `Create ${formData?.contentType || 'content'} content for ${formData?.platform || 'social media'} about: ${formData?.topic || 'the topic'}
+      const enhancedPrompt = `Create ${safeFormData.contentType || 'content'} content for ${safeFormData.platform || 'social media'} about: ${safeFormData.topic || 'the topic'}
 
-Platform: ${formData?.platform || 'social media'}
-Goal: ${formData?.goal || 'engagement'}
-Tone: ${formData?.tone || 'professional'}
-${formData?.keyPoints ? `Key points: ${formData.keyPoints}` : ''}
+Platform: ${safeFormData.platform || 'social media'}
+Goal: ${safeFormData.goal || 'engagement'}
+Tone: ${safeFormData.tone || 'professional'}
+${safeFormData.keyPoints ? `Key points: ${safeFormData.keyPoints}` : ''}
 
 Requirements:
-- Write engaging copy optimized for ${formData?.platform || 'social media'}
-- Use ${formData?.tone || 'professional'} tone throughout
-- ${formData?.emojiUsage ? 'Include relevant emojis' : 'No emojis'}
-- ${formData?.shortSentences ? 'Use short, punchy sentences' : 'Use natural sentence flow'}
-- ${formData?.hashtagDensity ? 'Include relevant hashtags' : 'No hashtags'}
+- Write engaging copy optimized for ${safeFormData.platform || 'social media'}
+- Use ${safeFormData.tone || 'professional'} tone throughout
+- ${safeFormData.emojiUsage ? 'Include relevant emojis' : 'No emojis'}
+- ${safeFormData.shortSentences ? 'Use short, punchy sentences' : 'Use natural sentence flow'}
+- ${safeFormData.hashtagDensity ? 'Include relevant hashtags' : 'No hashtags'}
 - Include a strong call-to-action
 - Keep it authentic and engaging
 
-Make sure the content is ready to post and follows ${formData?.platform || 'social media'} best practices.`;
+Make sure the content is ready to post and follows ${safeFormData.platform || 'social media'} best practices.`;
 
       const { data, error } = await supabase.functions.invoke('multi-provider-ai', {
         body: {
@@ -60,24 +73,31 @@ Make sure the content is ready to post and follows ${formData?.platform || 'soci
         throw new Error(error.message || 'Failed to generate content');
       }
 
-      if (data?.error) {
-        console.error('Multi-provider AI service error:', data.error);
-        throw new Error(data.error);
+      // Type the response data properly
+      const responseData = data as MultiProviderAIResponse | null;
+      
+      if (!responseData) {
+        throw new Error('No response data received');
       }
 
-      // Safely extract content with null check
-      const content = data?.content || '';
+      if (responseData.error) {
+        console.error('Multi-provider AI service error:', responseData.error);
+        throw new Error(responseData.error);
+      }
+
+      // Safely extract content with proper validation
+      const content = responseData.content || '';
       if (!content || content.trim().length === 0) {
         throw new Error('No content was generated');
       }
 
       console.log('✅ AIProviderManager: Content generated successfully');
       
-      // Safely extract usage data with explicit checks and fallbacks
-      const usage = data?.usage;
-      const promptTokens = usage?.promptTokens ?? 0;
-      const completionTokens = usage?.completionTokens ?? 0;
-      const totalTokens = usage?.totalTokens ?? 0;
+      // Safely extract usage data with proper typing and fallbacks
+      const usage = responseData.usage || {};
+      const promptTokens = usage.promptTokens || 0;
+      const completionTokens = usage.completionTokens || 0;
+      const totalTokens = usage.totalTokens || 0;
       
       return {
         content: content,
@@ -92,8 +112,9 @@ Make sure the content is ready to post and follows ${formData?.platform || 'soci
     } catch (error) {
       console.error('AIProviderManager error:', error);
       
-      // Provide fallback content - safely pass formData with null check
-      const fallbackContent = this.generateFallbackContent(formData || {});
+      // Provide fallback content with safe formData handling
+      const safeFormData = formData || {};
+      const fallbackContent = this.generateFallbackContent(safeFormData);
       return {
         content: fallbackContent,
         hashtags: this.extractHashtags(fallbackContent),
@@ -109,8 +130,9 @@ Make sure the content is ready to post and follows ${formData?.platform || 'soci
 
   generateFallbackContent: (formData: any): string => {
     // Safely access formData properties with fallbacks
-    const platform = formData?.platform || 'default';
-    const topic = formData?.topic || 'your topic';
+    const safeFormData = formData || {};
+    const platform = safeFormData.platform || 'default';
+    const topic = safeFormData.topic || 'your topic';
     
     const templates: Record<string, string> = {
       instagram: `🌟 ${topic}\n\nDiscover something amazing today! ${topic} is more than just a trend - it's a lifestyle.\n\n✨ What makes it special:\n• Authentic experiences\n• Real connections\n• Meaningful moments\n\nWhat's your take on ${topic}? Share your thoughts below! 👇\n\n#${topic.replace(/\s+/g, '')} #inspiration #lifestyle`,
@@ -148,4 +170,3 @@ Make sure the content is ready to post and follows ${formData?.platform || 'soci
 
   isUsingRealAI: () => true
 };
-
