@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 
 interface GenerateContentOptions {
@@ -63,6 +64,7 @@ Make sure the content is ready to post and follows ${formData.platform} best pra
         throw new Error(data.error);
       }
 
+      // Safely extract content with null check
       const content = data?.content || '';
       if (!content || content.trim().length === 0) {
         throw new Error('No content was generated');
@@ -105,17 +107,21 @@ Make sure the content is ready to post and follows ${formData.platform} best pra
   },
 
   generateFallbackContent: (formData: any): string => {
+    // Safely access formData properties with fallbacks
+    const platform = formData?.platform || 'default';
+    const topic = formData?.topic || 'your topic';
+    
     const templates: Record<string, string> = {
-      instagram: `🌟 ${formData.topic}\n\nDiscover something amazing today! ${formData.topic} is more than just a trend - it's a lifestyle.\n\n✨ What makes it special:\n• Authentic experiences\n• Real connections\n• Meaningful moments\n\nWhat's your take on ${formData.topic}? Share your thoughts below! 👇\n\n#${formData.topic.replace(/\s+/g, '')} #inspiration #lifestyle`,
+      instagram: `🌟 ${topic}\n\nDiscover something amazing today! ${topic} is more than just a trend - it's a lifestyle.\n\n✨ What makes it special:\n• Authentic experiences\n• Real connections\n• Meaningful moments\n\nWhat's your take on ${topic}? Share your thoughts below! 👇\n\n#${topic.replace(/\s+/g, '')} #inspiration #lifestyle`,
       
-      twitter: `🧵 Thread about ${formData.topic}:\n\n1/ ${formData.topic} is changing the game. Here's why you should pay attention...\n\n2/ Three key things to know:\n✅ Point 1\n✅ Point 2\n✅ Point 3\n\n3/ The bottom line: ${formData.topic} matters more than you think.\n\nWhat's your experience? Reply below! 👇`,
+      twitter: `🧵 Thread about ${topic}:\n\n1/ ${topic} is changing the game. Here's why you should pay attention...\n\n2/ Three key things to know:\n✅ Point 1\n✅ Point 2\n✅ Point 3\n\n3/ The bottom line: ${topic} matters more than you think.\n\nWhat's your experience? Reply below! 👇`,
       
-      linkedin: `Insights on ${formData.topic}\n\nIn today's rapidly evolving landscape, ${formData.topic} has emerged as a critical factor for success.\n\nKey takeaways:\n→ Strategic importance\n→ Implementation best practices\n→ Measurable outcomes\n\nWhat has been your experience with ${formData.topic}? I'd love to hear your perspective in the comments.\n\n#${formData.topic.replace(/\s+/g, '')} #professional #insights`,
+      linkedin: `Insights on ${topic}\n\nIn today's rapidly evolving landscape, ${topic} has emerged as a critical factor for success.\n\nKey takeaways:\n→ Strategic importance\n→ Implementation best practices\n→ Measurable outcomes\n\nWhat has been your experience with ${topic}? I'd love to hear your perspective in the comments.\n\n#${topic.replace(/\s+/g, '')} #professional #insights`,
       
-      default: `Ready to explore ${formData.topic}? \n\nFocus on these fundamentals:\n• Know your audience\n• Provide genuine value\n• Stay consistent\n• Engage authentically\n\nWhat's your next step with ${formData.topic}?`
+      default: `Ready to explore ${topic}? \n\nFocus on these fundamentals:\n• Know your audience\n• Provide genuine value\n• Stay consistent\n• Engage authentically\n\nWhat's your next step with ${topic}?`
     };
 
-    return templates[formData.platform] || templates.default;
+    return templates[platform] || templates.default;
   },
 
   extractHashtags: (content: string): string[] => {
