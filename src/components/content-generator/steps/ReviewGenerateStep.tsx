@@ -32,9 +32,12 @@ export const ReviewGenerateStep = ({
     navigator.clipboard.writeText(generatedContent);
   };
 
+  // Get platform for quality evaluation
+  const platform = formData.platform || formData.platforms?.[0] || 'instagram';
+
   // Evaluate content quality if content exists
   const qualityEvaluation = generatedContent ? 
-    ContentQualityService.evaluateContent(generatedContent, formData.platform, formData.language) : 
+    ContentQualityService.evaluateContent(generatedContent, platform, formData.language) : 
     null;
 
   return (
@@ -55,7 +58,7 @@ export const ReviewGenerateStep = ({
               <span className="font-medium">Type:</span> {formData.contentType}
             </div>
             <div>
-              <span className="font-medium">Platform:</span> {formData.platform}
+              <span className="font-medium">Platform:</span> {platform}
             </div>
             <div>
               <span className="font-medium">Language:</span> {formData.language}
@@ -76,11 +79,12 @@ export const ReviewGenerateStep = ({
             <p className="text-gray-600 mt-1">{formData.topic}</p>
           </div>
 
-          {formData.bulletPoints.length > 0 && (
+          {/* Handle both keyPoints and bulletPoints */}
+          {((formData.keyPoints && formData.keyPoints.length > 0) || (formData.bulletPoints && formData.bulletPoints.length > 0)) && (
             <div className="pt-2">
               <span className="font-medium">Key Points:</span>
               <ul className="list-disc list-inside text-gray-600 mt-1">
-                {formData.bulletPoints.map((point, index) => (
+                {(formData.keyPoints || formData.bulletPoints || []).map((point, index) => (
                   <li key={index}>{point}</li>
                 ))}
               </ul>

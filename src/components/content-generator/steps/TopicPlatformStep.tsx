@@ -27,10 +27,14 @@ export const TopicPlatformStep = ({ formData, updateFormData }: TopicPlatformSte
 
   const handlePlatformSelect = (platformId: string) => {
     console.log('Platform selected:', platformId);
-    updateFormData({ platform: platformId });
+    updateFormData({ 
+      platform: platformId,
+      platforms: [platformId]
+    });
   };
 
-  const isFormValid = formData.topic?.trim() && formData.platform;
+  const isFormValid = formData.topic?.trim() && (formData.platform || formData.platforms?.length > 0);
+  const selectedPlatform = formData.platform || formData.platforms?.[0];
 
   return (
     <div className="space-y-6">
@@ -57,7 +61,7 @@ export const TopicPlatformStep = ({ formData, updateFormData }: TopicPlatformSte
           <label className="block text-sm font-medium mb-3">Target Platform</label>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
             {platforms.map((platform) => {
-              const isSelected = formData.platform === platform.id;
+              const isSelected = selectedPlatform === platform.id;
               
               return (
                 <Card

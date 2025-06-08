@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -19,12 +20,14 @@ interface MultiStepContentGeneratorProps {
   canGenerateMore: boolean;
   postsRemaining: number;
   onBack?: () => void;
+  initialTemplate?: any;
 }
 
 export const MultiStepContentGenerator = ({ 
   canGenerateMore, 
   postsRemaining,
-  onBack 
+  onBack,
+  initialTemplate
 }: MultiStepContentGeneratorProps) => {
   const isMobile = useIsMobile();
   
@@ -34,8 +37,9 @@ export const MultiStepContentGenerator = ({
     updateFormData,
     nextStep,
     prevStep,
-    goToStep,
-    resetForm
+    jumpToStep,
+    resetForm,
+    canProceedToNext
   } = useMultiStepForm();
 
   const {
@@ -134,7 +138,7 @@ export const MultiStepContentGenerator = ({
       <ProgressHeader 
         currentStep={currentStep}
         postsRemaining={postsRemaining}
-        onStepClick={goToStep}
+        onStepClick={jumpToStep}
       />
       
       {renderCurrentStep()}
@@ -144,7 +148,7 @@ export const MultiStepContentGenerator = ({
         totalSteps={totalSteps}
         onPrevious={prevStep}
         onNext={nextStep}
-        isNextDisabled={false}
+        isNextDisabled={!canProceedToNext()}
       />
     </div>
   );

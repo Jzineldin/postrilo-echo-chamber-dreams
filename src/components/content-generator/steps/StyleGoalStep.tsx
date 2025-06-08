@@ -68,7 +68,7 @@ export const StyleGoalStep = ({ formData, updateFormData }: StyleGoalStepProps) 
           <div className="flex items-center space-x-2">
             <Checkbox
               id="emojis"
-              checked={formData.includeEmojis}
+              checked={formData.includeEmojis || false}
               onCheckedChange={(checked) => updateFormData({ includeEmojis: checked === true })}
             />
             <Label htmlFor="emojis">Include Emojis</Label>
@@ -77,7 +77,7 @@ export const StyleGoalStep = ({ formData, updateFormData }: StyleGoalStepProps) 
           <div className="flex items-center space-x-2">
             <Checkbox
               id="hashtags"
-              checked={formData.includeHashtags}
+              checked={formData.includeHashtags || false}
               onCheckedChange={(checked) => updateFormData({ includeHashtags: checked === true })}
             />
             <Label htmlFor="hashtags">Include Hashtags</Label>

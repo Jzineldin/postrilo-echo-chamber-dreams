@@ -8,10 +8,14 @@ export const useMultiStepForm = () => {
     contentType: '',
     topic: '',
     platforms: [],
+    platform: '',
     tone: '',
     goal: '',
     keyPoints: [],
-    language: 'en'
+    bulletPoints: [],
+    language: 'en',
+    includeEmojis: false,
+    includeHashtags: false
   });
 
   const updateFormData = useCallback((updates: Partial<FormData>) => {
@@ -32,12 +36,12 @@ export const useMultiStepForm = () => {
     }
   }, []);
 
-  const canProceedToNext = useCallback(() => {
+  const canProceedToNext = useCallback((): boolean => {
     switch (currentStep) {
       case 1:
         return !!formData.contentType;
       case 2:
-        return !!formData.topic && formData.platforms.length > 0;
+        return !!formData.topic && (formData.platforms.length > 0 || !!formData.platform);
       case 3:
         return !!formData.tone && !!formData.goal;
       case 4:
@@ -55,10 +59,14 @@ export const useMultiStepForm = () => {
       contentType: '',
       topic: '',
       platforms: [],
+      platform: '',
       tone: '',
       goal: '',
       keyPoints: [],
-      language: 'en'
+      bulletPoints: [],
+      language: 'en',
+      includeEmojis: false,
+      includeHashtags: false
     });
   }, []);
 

@@ -10,10 +10,15 @@ export interface FormData {
   contentType: string;
   topic: string;
   platforms: string[];
+  platform?: string; // For backward compatibility
   tone: string;
   goal: string;
   keyPoints: string[];
+  bulletPoints?: string[]; // For backward compatibility
   language: string;
+  includeEmojis?: boolean;
+  includeHashtags?: boolean;
+  template?: any;
 }
 
 export interface ContentGenerationResult {
