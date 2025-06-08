@@ -1,4 +1,5 @@
 
+
 import { supabase } from "@/integrations/supabase/client";
 
 interface GenerateContentOptions {
@@ -28,23 +29,23 @@ export const aiProviderManager = {
       console.log('🎯 AIProviderManager: Calling multi-provider-ai edge function');
       
       // Build a comprehensive prompt
-      const enhancedPrompt = `Create ${formData.contentType} content for ${formData.platform} about: ${formData.topic}
+      const enhancedPrompt = `Create ${formData?.contentType || 'content'} content for ${formData?.platform || 'social media'} about: ${formData?.topic || 'the topic'}
 
-Platform: ${formData.platform}
-Goal: ${formData.goal}
-Tone: ${formData.tone}
-${formData.keyPoints ? `Key points: ${formData.keyPoints}` : ''}
+Platform: ${formData?.platform || 'social media'}
+Goal: ${formData?.goal || 'engagement'}
+Tone: ${formData?.tone || 'professional'}
+${formData?.keyPoints ? `Key points: ${formData.keyPoints}` : ''}
 
 Requirements:
-- Write engaging copy optimized for ${formData.platform}
-- Use ${formData.tone} tone throughout
-- ${formData.emojiUsage ? 'Include relevant emojis' : 'No emojis'}
-- ${formData.shortSentences ? 'Use short, punchy sentences' : 'Use natural sentence flow'}
-- ${formData.hashtagDensity ? 'Include relevant hashtags' : 'No hashtags'}
+- Write engaging copy optimized for ${formData?.platform || 'social media'}
+- Use ${formData?.tone || 'professional'} tone throughout
+- ${formData?.emojiUsage ? 'Include relevant emojis' : 'No emojis'}
+- ${formData?.shortSentences ? 'Use short, punchy sentences' : 'Use natural sentence flow'}
+- ${formData?.hashtagDensity ? 'Include relevant hashtags' : 'No hashtags'}
 - Include a strong call-to-action
 - Keep it authentic and engaging
 
-Make sure the content is ready to post and follows ${formData.platform} best practices.`;
+Make sure the content is ready to post and follows ${formData?.platform || 'social media'} best practices.`;
 
       const { data, error } = await supabase.functions.invoke('multi-provider-ai', {
         body: {
@@ -72,7 +73,7 @@ Make sure the content is ready to post and follows ${formData.platform} best pra
 
       console.log('✅ AIProviderManager: Content generated successfully');
       
-      // Safely extract usage data with explicit checks
+      // Safely extract usage data with explicit checks and fallbacks
       const usage = data?.usage;
       const promptTokens = usage?.promptTokens ?? 0;
       const completionTokens = usage?.completionTokens ?? 0;
@@ -91,8 +92,8 @@ Make sure the content is ready to post and follows ${formData.platform} best pra
     } catch (error) {
       console.error('AIProviderManager error:', error);
       
-      // Provide fallback content
-      const fallbackContent = this.generateFallbackContent(formData);
+      // Provide fallback content - safely pass formData with null check
+      const fallbackContent = this.generateFallbackContent(formData || {});
       return {
         content: fallbackContent,
         hashtags: this.extractHashtags(fallbackContent),
@@ -147,3 +148,4 @@ Make sure the content is ready to post and follows ${formData.platform} best pra
 
   isUsingRealAI: () => true
 };
+
