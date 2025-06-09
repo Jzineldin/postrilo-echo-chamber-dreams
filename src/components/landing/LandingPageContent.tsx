@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, Sparkles, Target, BarChart3, Zap, Star, User, LogIn, Play } from "lucide-react";
+import { ArrowRight, Sparkles, Target, BarChart3, Zap, Star, User, LogIn, Play, Eye } from "lucide-react";
 import { HeroSection } from "./HeroSection";
 import { AppFeaturesSection } from "./AppFeaturesSection";
 import { HowItWorksSection } from "./HowItWorksSection";
@@ -12,6 +12,7 @@ import { FAQSection } from "./FAQSection";
 import { FinalCTASection } from "./FinalCTASection";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useToast } from "@/hooks/use-toast";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 interface LandingPageContentProps {
   onGetStarted: () => void;
@@ -31,6 +32,8 @@ export const LandingPageContent = ({
   user
 }: LandingPageContentProps) => {
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewTemplate, setPreviewTemplate] = useState<any>(null);
   const isMobile = useIsMobile();
   const { toast } = useToast();
 
@@ -42,7 +45,7 @@ export const LandingPageContent = ({
       rating: 4.9,
       platforms: ["Instagram", "LinkedIn", "Twitter"],
       description: "Perfect for announcing new products with engaging copy",
-      preview: "🚀 Exciting news! We're thrilled to announce the launch of our revolutionary new product that's about to change everything..."
+      preview: "🚀 Exciting news! We're thrilled to announce the launch of our revolutionary new product that's about to change everything...\n\n✨ What makes it special:\n• Cutting-edge technology\n• User-friendly design\n• Unmatched performance\n\nGet ready to experience the future! Who's excited to try it? 👇\n\n#ProductLaunch #Innovation #TechNews #NewProduct"
     },
     {
       id: "educational-content",
@@ -51,7 +54,7 @@ export const LandingPageContent = ({
       rating: 4.7,
       platforms: ["LinkedIn", "YouTube", "Blog"],
       description: "Share knowledge and establish thought leadership",
-      preview: "📚 Did you know? Here are 5 essential tips that will transform your understanding of this topic..."
+      preview: "📚 Did you know? Here are 5 essential tips that will transform your understanding of this topic...\n\n1️⃣ Start with the basics\n2️⃣ Practice consistently\n3️⃣ Learn from experts\n4️⃣ Apply what you learn\n5️⃣ Share your knowledge\n\nWhich tip resonates most with you? Share your thoughts below! 💭\n\n#Education #Learning #Tips #Growth #Knowledge"
     },
     {
       id: "behind-scenes",
@@ -60,7 +63,7 @@ export const LandingPageContent = ({
       rating: 4.6,
       platforms: ["Instagram", "TikTok", "Facebook"],
       description: "Humanize your brand with authentic storytelling",
-      preview: "👀 Take a peek behind the curtain! Here's what really goes into creating something special..."
+      preview: "👀 Take a peek behind the curtain! Here's what really goes into creating something special...\n\nToday's behind-the-scenes moment: Our team brainstorming the next big idea ☕\n\n• Early morning energy ✨\n• Creative collaboration 🤝\n• Lots of coffee ☕\n• Amazing results 🎯\n\nWhat's your creative process like? Tell us below! 👇\n\n#BehindTheScenes #TeamWork #Creative #Process"
     }
   ];
 
@@ -81,11 +84,8 @@ export const LandingPageContent = ({
 
   const handlePreviewTemplate = (template: any) => {
     console.log("Preview template:", template.id);
-    setSelectedTemplate(template.id);
-    toast({
-      title: "Template Preview",
-      description: template.preview,
-    });
+    setPreviewTemplate(template);
+    setPreviewOpen(true);
   };
 
   const handleUseTemplate = (templateId: string) => {
@@ -98,14 +98,16 @@ export const LandingPageContent = ({
         templateName: template.name,
         templateCategory: template.category,
         templateDescription: template.description,
-        templatePreview: template.preview
+        templatePreview: template.preview,
+        platforms: template.platforms
       }));
       
       toast({
         title: "Template Selected",
-        description: `Using "${template.name}" template for content creation.`,
+        description: `Redirecting to create content with "${template.name}" template.`,
       });
       
+      // Navigate to content generator
       onTryTemplate(templateId);
     }
   };
@@ -125,7 +127,7 @@ export const LandingPageContent = ({
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={handleGetStarted}
+                  onClick={onGetStarted}
                   className="flex items-center gap-2"
                 >
                   <LogIn className="w-4 h-4" />
@@ -134,7 +136,7 @@ export const LandingPageContent = ({
                 <Button
                   variant="default"
                   size="sm"
-                  onClick={handleGetStarted}
+                  onClick={onGetStarted}
                   className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
                 >
                   <User className="w-4 h-4" />
@@ -162,9 +164,9 @@ export const LandingPageContent = ({
       {/* Main Content with top padding for fixed header */}
       <div className="pt-16">
         <HeroSection 
-          onGetStarted={handleGetStarted}
-          onTryDemo={handleTryDemo}
-          onBrowseTemplates={handleBrowseTemplates}
+          onGetStarted={onGetStarted}
+          onTryDemo={onTryDemo}
+          onBrowseTemplates={onBrowseTemplates}
           user={user}
           isMobile={isMobile}
         />
@@ -212,7 +214,7 @@ export const LandingPageContent = ({
                         className="flex-1"
                         onClick={() => handlePreviewTemplate(template)}
                       >
-                        <Play className="w-3 h-3 mr-1" />
+                        <Eye className="w-3 h-3 mr-1" />
                         Preview
                       </Button>
                       <Button
@@ -232,7 +234,7 @@ export const LandingPageContent = ({
             <div className="text-center">
               <Button
                 variant="outline"
-                onClick={handleBrowseTemplates}
+                onClick={onBrowseTemplates}
                 className="flex items-center gap-2"
               >
                 Browse All Templates
@@ -242,17 +244,83 @@ export const LandingPageContent = ({
           </div>
         </section>
 
+        {/* Preview Modal */}
+        <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Eye className="w-5 h-5" />
+                {previewTemplate?.name} Preview
+              </DialogTitle>
+            </DialogHeader>
+            
+            {previewTemplate && (
+              <div className="space-y-4">
+                <div className="flex flex-wrap gap-1">
+                  {previewTemplate.platforms.map((platform: string) => (
+                    <Badge key={platform} variant="secondary" className="text-xs">
+                      {platform}
+                    </Badge>
+                  ))}
+                </div>
+                
+                <Card>
+                  <CardContent className="p-4 space-y-3">
+                    <h4 className="font-medium">Content Preview</h4>
+                    <div className="bg-gray-50 p-3 rounded-lg">
+                      <p className="text-sm whitespace-pre-wrap leading-relaxed">
+                        {previewTemplate.preview}
+                      </p>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3 text-sm">
+                      <div className="text-center">
+                        <div className="font-medium">{previewTemplate.preview.length}</div>
+                        <div className="text-gray-500">Characters</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="font-medium">{(previewTemplate.preview.match(/#\w+/g) || []).length}</div>
+                        <div className="text-gray-500">Hashtags</div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <div className="flex gap-2 pt-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => setPreviewOpen(false)}
+                    className="flex-1"
+                  >
+                    Close
+                  </Button>
+                  
+                  <Button
+                    variant="default"
+                    onClick={() => {
+                      handleUseTemplate(previewTemplate.id);
+                      setPreviewOpen(false);
+                    }}
+                    className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                  >
+                    Use This Template
+                  </Button>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
+
         {/* Continue with other sections */}
         <AppFeaturesSection isMobile={isMobile} />
         <HowItWorksSection 
-          onGetStarted={handleGetStarted}
+          onGetStarted={onGetStarted}
           user={user}
           isMobile={isMobile}
         />
         <KeyBenefitsSection isMobile={isMobile} />
         <FAQSection isMobile={isMobile} />
         <FinalCTASection 
-          onGetStarted={handleGetStarted}
+          onGetStarted={onGetStarted}
           user={user}
           isMobile={isMobile}
         />

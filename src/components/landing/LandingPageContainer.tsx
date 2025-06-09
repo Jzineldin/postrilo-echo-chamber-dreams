@@ -48,9 +48,8 @@ export const LandingPageContainer = ({ onGetStarted, onTryDemo }: LandingPageCon
   const handleTryDemo = () => {
     console.log("LandingPageContainer: Try Demo button clicked, user authenticated:", !!user);
     if (user) {
-      console.log("User authenticated, navigating to create");
-      window.location.hash = '#create';
-      window.location.reload();
+      console.log("User authenticated, calling onTryDemo to navigate to create");
+      onTryDemo();
     } else {
       console.log("User not authenticated, showing demo");
       setShowDemo(true);
@@ -59,8 +58,14 @@ export const LandingPageContainer = ({ onGetStarted, onTryDemo }: LandingPageCon
 
   const handleTryTemplate = (templateId: string) => {
     console.log("Try template clicked:", templateId);
-    sessionStorage.setItem('selectedTemplate', templateId);
-    handleTryDemo();
+    
+    if (user) {
+      console.log("User authenticated, navigating to content generator with template");
+      onTryDemo(); // This will navigate to create page
+    } else {
+      console.log("User not authenticated, redirecting to auth");
+      onGetStarted();
+    }
   };
 
   const handleBrowseTemplates = () => {
