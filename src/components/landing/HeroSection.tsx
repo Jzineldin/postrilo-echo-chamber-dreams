@@ -65,7 +65,7 @@ export const HeroSection = ({
           <Button
             size="lg"
             onClick={handleGetStarted}
-            className="bg-white text-purple-600 hover:bg-gray-100 font-semibold px-8 py-4 text-lg shadow-lg hover:shadow-xl transition-all duration-200"
+            className="bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 text-white border-2 border-orange-400 font-bold px-8 py-4 text-lg shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105"
           >
             {user ? (
               <>
@@ -84,7 +84,7 @@ export const HeroSection = ({
             size="lg"
             variant="outline"
             onClick={handleTryDemo}
-            className="border-white/30 text-white hover:bg-white/10 font-semibold px-8 py-4 text-lg backdrop-blur-sm"
+            className="bg-white/20 backdrop-blur-sm border-2 border-white text-white hover:bg-white hover:text-purple-700 font-bold px-8 py-4 text-lg shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105"
           >
             <Play className="w-5 h-5 mr-2" />
             Try Demo
@@ -94,7 +94,7 @@ export const HeroSection = ({
             size="lg"
             variant="ghost"
             onClick={handleBrowseTemplates}
-            className="text-white hover:bg-white/10 font-semibold px-8 py-4 text-lg"
+            className="bg-purple-800/40 backdrop-blur-sm border-2 border-purple-300 text-white hover:bg-purple-700 hover:border-purple-200 font-bold px-8 py-4 text-lg shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105"
           >
             <FileText className="w-5 h-5 mr-2" />
             Browse Templates
