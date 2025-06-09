@@ -24,6 +24,8 @@ const ContentGenerator = () => {
         const template = JSON.parse(storedTemplate);
         setTemplateData(template);
         
+        console.log('Template loaded from session:', template);
+        
         // Show success message
         toast({
           title: "Template Loaded",
@@ -42,6 +44,23 @@ const ContentGenerator = () => {
   const handleBack = () => {
     navigate('/dashboard');
   };
+
+  const handleContentGenerated = (content: any) => {
+    console.log('Content generated successfully:', content);
+    toast({
+      title: "Content Generated!",
+      description: "Your content has been created successfully.",
+    });
+  };
+
+  const handleGenerationError = (error: any) => {
+    console.error('Content generation error:', error);
+    toast({
+      title: "Generation Failed",
+      description: error.message || "Failed to generate content. Please try again.",
+      variant: "destructive"
+    });
+  };
   
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-purple-100">
@@ -56,6 +75,8 @@ const ContentGenerator = () => {
           postsRemaining={postsRemaining}
           onBack={handleBack}
           initialTemplate={templateData}
+          onContentGenerated={handleContentGenerated}
+          onGenerationError={handleGenerationError}
         />
       </div>
     </div>

@@ -1,203 +1,48 @@
 
-import React, { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import { ArrowLeft } from "lucide-react";
-import { useMultiStepForm } from "./content-generator/multi-step/hooks/useMultiStepForm";
-import { useEnhancedContentGeneration } from "./enhanced-content-generator/hooks/useEnhancedContentGeneration";
-import { ContentTypeStep } from "./content-generator/steps/ContentTypeStep";
-import { TopicPlatformStep } from "./content-generator/steps/TopicPlatformStep";
-import { StyleGoalStep } from "./content-generator/steps/StyleGoalStep";
-import { KeyPointsStep } from "./content-generator/steps/KeyPointsStep";
-import { ReviewGenerateStep } from "./content-generator/steps/ReviewGenerateStep";
-import { ProgressHeader } from "./content-generator/multi-step/ProgressHeader";
-import { StepNavigation } from "./content-generator/multi-step/StepNavigation";
-import { MobileContentGenerator } from "./mobile/MobileContentGenerator";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { useToast } from "@/hooks/use-toast";
-import { FormData as EnhancedFormData } from "@/components/enhanced-content-generator/types";
+import React from "react";
+import { ResponsiveContentGenerator } from "./content-generator/ResponsiveContentGenerator";
 
 interface MultiStepContentGeneratorProps {
   canGenerateMore: boolean;
   postsRemaining: number;
   onBack?: () => void;
   initialTemplate?: any;
+  onContentGenerated?: (content: any) => void;
+  onGenerationError?: (error: any) => void;
 }
 
-export const MultiStepContentGenerator = ({ 
-  canGenerateMore, 
+export const MultiStepContentGenerator = ({
+  canGenerateMore,
   postsRemaining,
   onBack,
-  initialTemplate
+  initialTemplate,
+  onContentGenerated,
+  onGenerationError
 }: MultiStepContentGeneratorProps) => {
-  const isMobile = useIsMobile();
-  const { toast } = useToast();
-  const [generatedContent, setGeneratedContent] = useState<string>("");
-  const [generatedHashtags, setGeneratedHashtags] = useState<string[]>([]);
-  
-  const {
-    currentStep,
-    formData,
-    updateFormData,
-    nextStep,
-    prevStep,
-    jumpToStep,
-    resetForm,
-    canProceedToNext
-  } = useMultiStepForm();
-
-  const onContentGenerated = (content: any) => {
-    console.log('Content generated successfully:', content);
-    setGeneratedContent(content.content);
-    setGeneratedHashtags(content.hashtags || []);
-    toast({
-      title: "Content Generated!",
-      description: `Successfully generated ${content.contentType} for ${content.platform}`,
-    });
-  };
-
-  const onGenerationError = (error: any) => {
-    console.error('Content generation error:', error);
-    toast({
-      title: "Generation Failed",
-      description: error.userFriendlyMessage || "Failed to generate content. Please try again.",
-      variant: "destructive"
-    });
-  };
-
-  const { isGenerating, generateEnhancedContent } = useEnhancedContentGeneration(
-    onContentGenerated,
-    onGenerationError
-  );
-
-  const totalSteps = 5;
-
-  const onGenerate = async () => {
-    if (!canGenerateMore) {
-      toast({
-        title: "Post limit reached",
-        description: `You've reached your monthly limit. You have ${postsRemaining} posts remaining.`,
-        variant: "destructive"
-      });
-      return;
-    }
-
-    // Convert form data to enhanced generator format with proper typing
-    const enhancedFormData: EnhancedFormData = {
-      topic: formData.topic,
-      platform: (formData.platforms[0] || formData.platform || 'instagram') as 'instagram' | 'twitter' | 'linkedin' | 'facebook' | 'tiktok' | 'youtube',
-      goal: (formData.goal || 'engagement') as 'engagement' | 'brand-awareness' | 'lead-generation' | 'promotion',
-      tone: (formData.tone || 'professional') as 'professional' | 'casual' | 'humorous' | 'inspirational' | 'educational',
-      contentType: (formData.contentType || 'post') as 'post' | 'video-script' | 'story' | 'reel' | 'carousel' | 'thread',
-      keyPoints: formData.keyPoints?.join(', ') || '',
-      emojiUsage: formData.includeEmojis || false,
-      hashtagDensity: formData.includeHashtags || false,
-      shortSentences: true,
-      useCache: true
-    };
-
-    await generateEnhancedContent(enhancedFormData);
-  };
-
-  const onMobileContentGenerated = (content: any) => {
-    console.log('Mobile content generated:', content);
-  };
-
-  const onMobileGenerationError = (error: any) => {
-    console.error('Mobile generation error:', error);
-  };
-
-  // Use mobile component for mobile devices
-  if (isMobile) {
-    return (
-      <div className="px-3 py-4">
-        <MobileContentGenerator
-          onContentGenerated={onMobileContentGenerated}
-          onGenerationError={onMobileGenerationError}
-          isGenerating={isGenerating}
-          canGenerateMore={canGenerateMore}
-          postsRemaining={postsRemaining}
-        />
-      </div>
-    );
-  }
-
-  // Keep existing desktop multi-step form
-  const renderCurrentStep = () => {
-    switch (currentStep) {
-      case 1:
-        return (
-          <ContentTypeStep
-            formData={formData}
-            updateFormData={updateFormData}
-            onNext={() => {
-              nextStep();
-              return true;
-            }}
-          />
-        );
-      case 2:
-        return (
-          <TopicPlatformStep
-            formData={formData}
-            updateFormData={updateFormData}
-          />
-        );
-      case 3:
-        return (
-          <StyleGoalStep
-            formData={formData}
-            updateFormData={updateFormData}
-          />
-        );
-      case 4:
-        return (
-          <KeyPointsStep
-            formData={{ ...formData, bulletPoints: formData.bulletPoints || [] }}
-            updateFormData={updateFormData}
-          />
-        );
-      case 5:
-        return (
-          <ReviewGenerateStep
-            formData={formData}
-            generatedContent={generatedContent}
-            generatedHashtags={generatedHashtags}
-            isGenerating={isGenerating}
-            canGenerateMore={canGenerateMore}
-            onGenerate={onGenerate}
-            onPrevious={prevStep}
-            onStartOver={resetForm}
-          />
-        );
-      default:
-        return null;
-    }
-  };
-
-  const handleNext = () => {
-    nextStep();
-    return true;
-  };
+  console.log("MultiStepContentGenerator: Rendering with props:", {
+    canGenerateMore,
+    postsRemaining,
+    initialTemplate
+  });
 
   return (
-    <div className={`max-w-4xl mx-auto space-y-6 ${isMobile ? 'px-3 py-4' : 'px-4 py-8'}`}>
-      <ProgressHeader 
-        currentStep={currentStep}
+    <div className="container mx-auto px-4 py-8">
+      <ResponsiveContentGenerator
+        canGenerateMore={canGenerateMore}
         postsRemaining={postsRemaining}
-        onStepClick={jumpToStep}
+        onContentGenerated={onContentGenerated}
+        onGenerationError={onGenerationError}
+        showHeader={false}
+        className="max-w-4xl mx-auto"
       />
       
-      {renderCurrentStep()}
-      
-      <StepNavigation
-        currentStep={currentStep}
-        totalSteps={totalSteps}
-        onPrevious={prevStep}
-        onNext={handleNext}
-        isNextDisabled={!canProceedToNext()}
-      />
+      {initialTemplate && (
+        <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg max-w-4xl mx-auto">
+          <h3 className="font-semibold text-blue-900 mb-2">Template Selected:</h3>
+          <p className="text-blue-700">{initialTemplate.templateName}</p>
+          <p className="text-sm text-blue-600">{initialTemplate.templateDescription}</p>
+        </div>
+      )}
     </div>
   );
 };

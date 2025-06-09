@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, Sparkles, Target, BarChart3, Zap, Star, User, LogIn } from "lucide-react";
+import { ArrowRight, Sparkles, Target, BarChart3, Zap, Star, User, LogIn, Play } from "lucide-react";
 import { HeroSection } from "./HeroSection";
 import { AppFeaturesSection } from "./AppFeaturesSection";
 import { HowItWorksSection } from "./HowItWorksSection";
@@ -11,6 +11,7 @@ import { KeyBenefitsSection } from "./KeyBenefitsSection";
 import { FAQSection } from "./FAQSection";
 import { FinalCTASection } from "./FinalCTASection";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useToast } from "@/hooks/use-toast";
 
 interface LandingPageContentProps {
   onGetStarted: () => void;
@@ -31,6 +32,7 @@ export const LandingPageContent = ({
 }: LandingPageContentProps) => {
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const isMobile = useIsMobile();
+  const { toast } = useToast();
 
   const templates = [
     {
@@ -39,7 +41,8 @@ export const LandingPageContent = ({
       category: "Social Media",
       rating: 4.9,
       platforms: ["Instagram", "LinkedIn", "Twitter"],
-      description: "Perfect for announcing new products with engaging copy"
+      description: "Perfect for announcing new products with engaging copy",
+      preview: "🚀 Exciting news! We're thrilled to announce the launch of our revolutionary new product that's about to change everything..."
     },
     {
       id: "educational-content",
@@ -47,7 +50,8 @@ export const LandingPageContent = ({
       category: "Educational",
       rating: 4.7,
       platforms: ["LinkedIn", "YouTube", "Blog"],
-      description: "Share knowledge and establish thought leadership"
+      description: "Share knowledge and establish thought leadership",
+      preview: "📚 Did you know? Here are 5 essential tips that will transform your understanding of this topic..."
     },
     {
       id: "behind-scenes",
@@ -55,7 +59,8 @@ export const LandingPageContent = ({
       category: "Social Media",
       rating: 4.6,
       platforms: ["Instagram", "TikTok", "Facebook"],
-      description: "Humanize your brand with authentic storytelling"
+      description: "Humanize your brand with authentic storytelling",
+      preview: "👀 Take a peek behind the curtain! Here's what really goes into creating something special..."
     }
   ];
 
@@ -74,6 +79,37 @@ export const LandingPageContent = ({
     onBrowseTemplates();
   };
 
+  const handlePreviewTemplate = (template: any) => {
+    console.log("Preview template:", template.id);
+    setSelectedTemplate(template.id);
+    toast({
+      title: "Template Preview",
+      description: template.preview,
+    });
+  };
+
+  const handleUseTemplate = (templateId: string) => {
+    console.log("Use template:", templateId);
+    const template = templates.find(t => t.id === templateId);
+    if (template) {
+      // Store template data for use in content generator
+      sessionStorage.setItem('selectedTemplate', JSON.stringify({
+        templateId,
+        templateName: template.name,
+        templateCategory: template.category,
+        templateDescription: template.description,
+        templatePreview: template.preview
+      }));
+      
+      toast({
+        title: "Template Selected",
+        description: `Using "${template.name}" template for content creation.`,
+      });
+      
+      onTryTemplate(templateId);
+    }
+  };
+
   return (
     <div className="min-h-screen">
       {/* Fixed Header with Login */}
@@ -89,10 +125,7 @@ export const LandingPageContent = ({
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => {
-                    console.log("Header Sign In clicked");
-                    handleGetStarted();
-                  }}
+                  onClick={handleGetStarted}
                   className="flex items-center gap-2"
                 >
                   <LogIn className="w-4 h-4" />
@@ -101,11 +134,8 @@ export const LandingPageContent = ({
                 <Button
                   variant="default"
                   size="sm"
-                  onClick={() => {
-                    console.log("Header Get Started clicked");
-                    handleGetStarted();
-                  }}
-                  className="flex items-center gap-2"
+                  onClick={handleGetStarted}
+                  className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
                 >
                   <User className="w-4 h-4" />
                   Get Started
@@ -119,7 +149,7 @@ export const LandingPageContent = ({
                   console.log("Header Go to Dashboard clicked");
                   window.location.hash = '#dashboard';
                 }}
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
               >
                 <Target className="w-4 h-4" />
                 Go to Dashboard
@@ -180,15 +210,16 @@ export const LandingPageContent = ({
                         variant="outline"
                         size="sm"
                         className="flex-1"
-                        onClick={() => setSelectedTemplate(template.id)}
+                        onClick={() => handlePreviewTemplate(template)}
                       >
+                        <Play className="w-3 h-3 mr-1" />
                         Preview
                       </Button>
                       <Button
                         variant="default"
                         size="sm"
-                        className="flex-1"
-                        onClick={() => onTryTemplate(template.id)}
+                        className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                        onClick={() => handleUseTemplate(template.id)}
                       >
                         Use Template
                       </Button>
@@ -211,6 +242,7 @@ export const LandingPageContent = ({
           </div>
         </section>
 
+        {/* Continue with other sections */}
         <AppFeaturesSection isMobile={isMobile} />
         <HowItWorksSection 
           onGetStarted={handleGetStarted}
